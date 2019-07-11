@@ -24,9 +24,6 @@ gpsstr = ["utctime", "lat", "lon", "sHeight", "gHeight"]								#variable to sho
 
 t_setup = 10	#variable to set waiting time after setup
 
-t1 = 0.0	#vairable to store start time
-t2 = 0.0	#vairable to store time
-
 pi = pipgpio.pi()   #object of pigpio
 
 def setup():
