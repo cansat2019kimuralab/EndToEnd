@@ -2,19 +2,21 @@ import sys
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BME280')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BMX055')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Camera')
+sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/GPS')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/IM920')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Melting')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Motor')
-sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2791')
+sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2561')
 import time
 import serial
 import pigpio
 import BME280
 import BMX055
 import IM920
+import GPS
 import Melting
 import Motor
-import TSL2791
+import TSL2561
 
 
 luxstr = ["lux1", "lux2"]																#variable to show lux returned variables
@@ -24,40 +26,40 @@ gpsstr = ["utctime", "lat", "lon", "sHeight", "gHeight"]								#variable to sho
 
 t_setup = 10	#variable to set waiting time after setup
 
-pi = pipgpio.pi()   #object of pigpio
+pi = pigpio.pi()   #object of pigpio
 
 def setup():
-    BME280.bme280_setup()
+	BME280.bme280_setup()
 	BME280.bme280_calib_param()
-    BMX055.bmx055_setup()
+	BMX055.bmx055_setup()
 	GPS.openGPS()
 
 def close():
 	GPS.closeGPS()
-    #it may be necessarry to down low status some gpio pins 
+	#it may be necessarry to down low status some gpio pins 
 
 
 if __name__ == "__main__":
-    try:
-        # ------------------- Setup Fhase ------------------- #
-        setup()
-        time.sleep(t_setup)
+	try:
+    	# ------------------- Setup Fhase ------------------- #
+		setup()
+		time.sleep(t_setup)
 
-        # ------------------- Release Fhase ------------------- #
-
-
-        # ------------------- Landing Fhase ------------------- #
+		# ------------------- Release Fhase ------------------- #
 
 
-        # ------------------- Melting Fhase ------------------- #
-        Melting.Melting()
-
-        # ------------------- Avoidance of Parachute Fhase ------------------- #
+		# ------------------- Landing Fhase ------------------- #
 
 
-    except KeyboardInterrupt:
-        close()
-        print("Keyboard Interrupt")
-    except Exception as e:
-        close()
-        print(e.message)
+		# ------------------- Melting Fhase ------------------- #
+		Melting.Melting()
+
+		# ------------------- Avoidance of Parachute Fhase ------------------- #
+
+
+	except KeyboardInterrupt:
+		close()
+		print("Keyboard Interrupt")
+	except Exception as e:
+		close()
+		print(e.message)
