@@ -55,7 +55,10 @@ if __name__ == "__main__":
 		Melting.Melting()
 
 		# ------------------- Avoidance of Parachute Fhase ------------------- #
-
+		print("START: Judge covered by Parachute")
+		ParaJudge()
+		print("START: Parachute avoidance")
+		ParaAvoidance()
 
 	except KeyboardInterrupt:
 		close()
