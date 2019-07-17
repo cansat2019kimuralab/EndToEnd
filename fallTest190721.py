@@ -80,12 +80,12 @@ if __name__ == "__main__":
 		print("Releasing Judgement Program Start  {0}".format(time.time()))
 		with open('log/releaseLog.txt', 'a') as f:
 					f.write("\n")
-					#ループx
+					#loopx
 					while(1):
 
-						#tx2を更新
+						#tx2update
 						tx2=time.time()
-						#放出判定(照度センサ)
+						#release judgement(lux)
 						luxdata=TSL2561.readLux()
 						#f.write(str(luxdata[0])+":"+str(luxdata[1]))
 						print("lux1: "+str(luxdata[0])+" "+"lux2: "+str(luxdata[1]))
@@ -103,18 +103,18 @@ if __name__ == "__main__":
 							print("luxreleasejudge")
 						else:
 							luxreleasejudge=False
-						#放出判定（気圧センサ）
+						#releasejudgement(press)
 							PRESS=bme280Data[1]
 							deltA=PRESS
-							bme280Data=BME280.bme280_read()	#更新
+							bme280Data=BME280.bme280_read()	#update
 							PRESS=bme280Data[1]
 							deltA=PRESS-deltA
 							#f.write("P0:P1"+str(P0)+":"+str(P1))
 							print(str(PRESS))
 							print(str(deltA))
 							time.sleep(2)
-							#3秒前の値と比較
-							#高度差が式一以上でacout+=1
+							#compare with 3 second ago
+							#acout+=1
 							if deltA>deltAmax:
 								acount+=1
 							elif deltA<deltAmax:
@@ -142,10 +142,10 @@ if __name__ == "__main__":
 								while(ty2-ty1<=y):
 									print(str(ty2-ty1))
 									ty2=time.time()
-									#気圧判定
+									#presjudgement
 									PRESS=bme280Data[1]
 									deltP=PRESS
-									bme280Data=BME280.bme280_read()	#更新
+									bme280Data=BME280.bme280_read()	#update
 									PRESS=bme280Data[1]
 									deltP=deltP-PRESS
 									f2.write(str(deltP))#+":"+str(PRESS)+ "\t")
@@ -162,14 +162,14 @@ if __name__ == "__main__":
 									else:
 										preslandjudge=False
 
-									#GPS高度判定
+									#GPS alt judgement
 									Gheight=gpsData[4]
 									deltH=Gheight
 									gpsData=GPS.readGPS()
 									Gheight=gpsData[4]
 									deltH=deltH-Gheight
 									print(Gheight)
-									#3秒ごとに判定
+									#judge every 4sec
 									time.sleep(3)
 									if abs(deltH)<deltHmax:
 										GAcount+=1
@@ -182,16 +182,16 @@ if __name__ == "__main__":
 										GPSlandjudge=False
 
 
-									#気圧と高度が変化していたら撮影
+									#take photo when chenging pres and GPSalt
 									if not preslandjudge and not GPSlandjudge:
 										print("satueinow")
-										#撮影
-									#両方に変化なければ着地、ループyを抜ける
+										#taking photo
+									# out loop y when no change pres and GPSalt
 									elif preslandjudge and  GPSlandjudge:
 										break
 									else:
 										print("Landingjudgement now")
-							#ループy中でbreakが起きなければ続行、起きたら全体も抜ける
+							#ループy中でbreakが起きなければ続行、起きたら全体も抜ける 
 								else:
 									print("THE ROVER HAS LANDED(timeout y).  {0}".format(time.time()))
 									f2.write("land")
