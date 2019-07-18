@@ -186,7 +186,7 @@ if __name__ == "__main__":
 
 
 					#take photo when chenging pres and GPSalt
-					if not preslandjudge and #ot GPSlandjudge:
+					if not preslandjudge #and not GPSlandjudge:
 						print("satueinow")
 					#taking photo
 					# out loop y when no change pres and GPSalt
