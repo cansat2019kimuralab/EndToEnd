@@ -241,14 +241,14 @@ if __name__ == "__main__":
 		Melting.Melting()
 
 				# ------------------- Avoidance of Parachute Fhase ------------------- #
-				print("START: Judge covered by Parachute")
-				ParaJudge()
-				print("START: Parachute avoidance")
-				ParaAvoidance()
+		print("START: Judge covered by Parachute")
+		ParaJudge()
+		print("START: Parachute avoidance")
+		ParaAvoidance()
 
-			except KeyboardInterrupt:
-				close()
-				print("Keyboard Interrupt")
-			except Exception as e:
-				close()
-				print(e.message)
+	except KeyboardInterrupt:
+		close()
+		print("Keyboard Interrupt")
+	except Exception as e:
+		close()
+		print(e.message)
