@@ -194,7 +194,7 @@ if __name__ == "__main__":
 						break
 					else:
 						print("Landingjudgement now")
-						#ループy中でbreakが起きなければ続行、起きたら全体も抜ける 
+						
 				else:
 					print("THE ROVER HAS LANDED(timeout y).  {0}".format(time.time()))
 					with open('log/landingLog.txt', 'a') as f2:
@@ -204,21 +204,21 @@ if __name__ == "__main__":
 				with open('log/landingLog.txt', 'a') as f2:
 					f2.write("land")
 				break
-					#放出されず、かつループxでタイムアウト
+			#enter loop x
 			elif tx2-tx1>=x:
 				tz1=time.time()
 				tz2=tz1
 				print("X timeout")
-				#ループzのタイムアウト判定
+				#loopx
 				while(tz2-tz1<=z):
 					tz2=time.time()
 					PRESS=bme280Data[1]
 					deltP=PRESS
-					bme280Data=BME280.bme280_read()	#更新
+					bme280Data=BME280.bme280_read()	#bme update
 					PRESS=bme280Data[1]
 					deltP=deltP-PRESS
 					print(PRESS)
-					#3秒ごとに判定.
+					#judge every 4sec.
 					time.sleep(3)
 					if abs(deltP)<deltPmax:
 						Pcount+=1
@@ -229,18 +229,17 @@ if __name__ == "__main__":
 						print("preslandjudge")
 					else:
 						preslandjudge=False
-					#気圧が変化しなければループzを抜ける
+					#out loopz when not presjudge
 					if  preslandjudge:
 						break
-					#ループz中でbreakが起きなければ続行、起きたら全体も抜ける
+				#continue if not break in loopz 
 				else:
 					break
-				break
-		#溶断へ						
-				# ------------------- Melting Fhase ------------------- #
+				break					
+		# ------------------- Melting Fhase ------------------- #
 		Melting.Melting()
 
-				# ------------------- Avoidance of Parachute Fhase ------------------- #
+		# ------------------- Avoidance of Parachute Fhase ------------------- #
 		print("START: Judge covered by Parachute")
 		ParaJudge()
 		print("START: Parachute avoidance")
