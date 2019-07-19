@@ -14,8 +14,8 @@ import BME280
 import BMX055
 import IM920
 import GPS
-"import Melting
-"import Motor
+#import Melting
+#import Motor
 import TSL2561
 luxdata=[]
 bme280Data=[0.0,0.0]
