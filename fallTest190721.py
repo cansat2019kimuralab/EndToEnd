@@ -115,6 +115,7 @@ if __name__ == "__main__":
 				time.sleep(2)
 				gpsData=GPS.readGPS()
 				bmx055data=BMX055.bmx055_read()
+				luxdata=TSL2561.readlux()
 				Other.saveLog('log/releaseLog.txt',gpsData,bme280Data,luxdata,bmx055data)
 				tx2=time.time()
 			else:
