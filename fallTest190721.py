@@ -9,7 +9,7 @@ sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2561')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Melting’)
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Motor’)
 sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/ParaAvoidance’)
-
+sys.path.append('/home/pi/git/kimuralab/Other’)
 import time
 import difflib
 import pigpio
@@ -28,7 +28,8 @@ import Melting
 import Motor
 import TSL2561
 import ParaAvoidance
-		
+import Other
+
 luxstr = ["lux1", "lux2"]																#variable to show lux returned variables
 bme280str = ["temp", "pres", "hum", "alt"]												#variable to show bme280 returned variables
 bmx055str = ["accx", "accy", "accz", "gyrx", "gyry", "gyrz", "dirx", "diry", "dirz"]	#variable to show bmx055 returned variables
