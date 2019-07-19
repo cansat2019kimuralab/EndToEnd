@@ -49,7 +49,7 @@ Pcount=0
 GAcount=0
 luxmax=300
 deltHmax=5
-
+PRESS=[]
 pi=pigpio.pi()
 
 def setup():
