@@ -36,7 +36,7 @@ luxstr = ["lux1", "lux2"]																#variable to show lux returned variable
 bme280str = ["temp", "pres", "hum", "alt"]												#variable to show bme280 returned variables
 bmx055str = ["accx", "accy", "accz", "gyrx", "gyry", "gyrz", "dirx", "diry", "dirz"]	#variable to show bmx055 returned variables
 gpsstr = ["utctime", "lat", "lon", "sHeight", "gHeight"]								#variable to show GPS returned variables
-PRESS=[0.0,0.0]
+
 
 t_setup = 10	#variable to set waiting time after setup
 t = 1	#waitingtime
@@ -107,11 +107,15 @@ if __name__ == "__main__":
 			while (tx2-tx1<=x):
 				luxjudge=Release.luxjudge()
 				pressjudge=Release.pressjuge()
+				
 				if luxjudge==1 or pressjudge==1:
 					break
 				else:
 		   			print("now in rocket ,taking photo")
 				time.sleep(2)
+				gpsData=GPS.readGPS()
+				bmx055data=BMX055.bmx055_read()
+				Other.savelog('log/releaseLog.txt',gpsData,bme280Data,luxdata,bmx055data)
 				tx2=time.time()
 			else:
 				print("RELEASE TIMEOUT")
