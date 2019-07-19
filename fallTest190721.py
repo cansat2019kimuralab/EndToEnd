@@ -27,9 +27,8 @@ PRESS=[0.0,0.0]
 t_setup = 10	#variable to set waiting time after setup
 
 t = 1	#waitingtime
-x = 61	#time for release(loopx)
+x = 120	#time for release(loopx)
 y = 60	#time for land(loopy)
-z = 120	#time for run(loopz)
 #lcount=0
 acount=0
 Pcount=0
