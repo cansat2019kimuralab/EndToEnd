@@ -7,6 +7,7 @@ sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/IM920')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Melting')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Motor')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2561')
+sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/ParaAvoidance')
 import time
 import serial
 import pigpio
@@ -17,7 +18,7 @@ import GPS
 import Melting
 import Motor
 import TSL2561
-
+import ParaAvoidance
 
 luxstr = ["lux1", "lux2"]																#variable to show lux returned variables
 bme280str = ["temp", "pres", "hum", "alt"]												#variable to show bme280 returned variables
@@ -241,9 +242,9 @@ if __name__ == "__main__":
 
 		# ------------------- Avoidance of Parachute Fhase ------------------- #
 		print("START: Judge covered by Parachute")
-		ParaJudge()
+		ParaAvodance.ParaJudge()
 		print("START: Parachute avoidance")
-		ParaAvoidance()
+		ParaAvoidance.ParaAvoidance()
 
 	except KeyboardInterrupt:
 		close()
