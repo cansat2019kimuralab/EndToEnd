@@ -47,7 +47,6 @@ def pressjudge():
 	global latestPRESS
 	global bme280Data
 	global acount
-	print(str(bme280Data[1]))
 	secondlatestPRESS=bme280Data[1]
 	bme280Data=BME280.bme280_read()	#更新
 	latestPRESS=bme280Data[1]
@@ -61,5 +60,5 @@ def pressjudge():
 		print("presjudge")
 	else:
 		pressjudge=0
-	print(str(deltA))
+	print(str(latestPRESS)+"	:	"+str(secondlatestPRESS)+"	:	"+str(deltA))
 	return pressjudge
