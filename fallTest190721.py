@@ -38,7 +38,7 @@ bmx055str = ["accx", "accy", "accz", "gyrx", "gyry", "gyrz", "dirx", "diry", "di
 gpsstr = ["utctime", "lat", "lon", "sHeight", "gHeight"]								#variable to show GPS returned variables
 
 
-t_setup = 10	#variable to set waiting time after setup
+t_setup = 1	#variable to set waiting time after setup
 t = 1	#waitingtime
 x = 120	#time for release(loopx)
 y = 60	#time for land(loopy)
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 				time.sleep(2)
 				gpsData=GPS.readGPS()
 				bmx055data=BMX055.bmx055_read()
-				luxdata=TSL2561.readlux()
+				luxdata=TSL2561.readLux()
 				Other.saveLog('log/releaseLog.txt',gpsData,bme280Data,luxdata,bmx055data)
 				tx2=time.time()
 			else:
