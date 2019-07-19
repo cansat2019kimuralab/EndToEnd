@@ -31,6 +31,7 @@ latestPRESS=0.0
 def luxjudge():
 	luxdata=TSL2561.readLux()
 	global lcount
+	global luxdata
 	if luxdata[0]>luxmax or luxdata[1]>luxmax:
 		lcount+=1
 	elif luxdata[0]<luxmax and luxdata[1]<luxmax:
