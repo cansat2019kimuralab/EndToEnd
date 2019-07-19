@@ -39,7 +39,7 @@ def pressjudge():
 	else:
 		preslandjudge=0
 	print(str(latestPRESS)+"	:	"+"delt	"+str(deltP))
-	print("Pcount	"+str(Pcount)
+	print("Pcount	"+str(Pcount))
 	return preslandjudge
 
 def gpsjudge():
