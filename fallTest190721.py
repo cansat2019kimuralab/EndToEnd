@@ -103,7 +103,7 @@ if __name__ == "__main__":
 			print("Releasing Judgement Program Start  {0}".format(time.time()))
 			#loopx
 			bme280Data=BME280.bme280_read()
-			PRESS[0]=bme280Data[1]
+			#PRESS[0]=bme280Data[1]
 			while (tx2-tx1<=x):
 				luxjudge=Release.luxjudge()
 				pressjudge=Release.pressjuge()
