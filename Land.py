@@ -14,9 +14,9 @@ import BME280
 import BMX055
 import IM920
 import GPS
-"import Melting
-"import Motor
-"import TSL2561
+#import Melting
+#import Motor
+#import TSL2561
 deltPmax=0.1
 deltHmax=5
 Pcount=0
