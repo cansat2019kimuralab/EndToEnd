@@ -132,7 +132,7 @@ if __name__ == "__main__":
 			ty2=ty1
 			gpsData = GPS.readGPS()
 			bme280Data=BME280.bme280_read()
-			PRESS[0]=bme280Data[1]
+			#PRESS[0]=bme280Data[1]
 			while(ty2-ty1<=y):
 				pressjudge=Land.pressjudge()
 				gpsjudge=Land.gpsjudge()
