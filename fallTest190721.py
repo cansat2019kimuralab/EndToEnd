@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
 		# ------------------- Avoidance of Parachute Fhase ------------------- #
 		print("START: Judge covered by Parachute")
-		ParaAvodance.ParaJudge()
+		ParaAvoidance.ParaJudge()
 		print("START: Parachute avoidance")
 		ParaAvoidance.ParaAvoidance()
 
