@@ -70,7 +70,7 @@ def setup():
 		pass
 	with open('log/runningLog.txt', 'a') as f:
 		pass
-	phaseLog = Other.phaseCheck('log/phaseLog.txt', 'a')
+	phaseLog = Other.phaseCheck('log/phaseLog.txt')
 	print(phaseLog)
 
 def close():
@@ -82,62 +82,81 @@ def close():
 
 if __name__ == "__main__":
 	try:
-		# ------------------- Setup Fhase ------------------- --#
+		with open('log/phaseLog.txt', 'a') as f:
+			f.write("1\tProgram Started\t{0}",format(time.time()))	
+		# ------------------- Setup Phase --------------------- #
 		print("Program Start  {0}".format(time.time()))
 		setup()
-		time.sleep(t_setup)
 
-		# ------------------- Release Fhase ------------------- #
-		tx1 = time.time()
-		tx2 = tx1
-		print("Releasing Judgement Program Start  {0}".format(time.time()))
-		#loopx
-		bme280Data=BME280.bme280_read()
-		PRESS[0]=bme280Data[1]
-		while (tx2-tx1<=x):
-			luxjudge=Release.luxjudge()
-			pressjudge=Release.pressjudge()
-			if luxjudge==1 or pressjudge==1:
-				break
+		# ------------------- Waiting Phase --------------------- #
+		with open('log/phaseLog.txt', 'a') as f:
+			f.write("2\tRelease Phase Started\t{0}",format(time.time()))		
+		if(phase <= 2):
+			time.sleep(t_setup)
+
+		# ------------------- Release Phase ------------------- #
+		with open('log/phaseLog.txt', 'a') as f:
+			f.write("3\tRelease Phase Started\t{0}",format(time.time()))
+		if(phaseLog <= 3):
+			tx1 = time.time()
+			tx2 = tx1
+			print("Releasing Judgement Program Start  {0}".format(time.time()))
+			#loopx
+			bme280Data=BME280.bme280_read()
+			PRESS[0]=bme280Data[1]
+			while (tx2-tx1<=x):
+				luxjudge=Release.luxjudge()
+				pressjudge=Release.pressjuge()
+				if luxjudge==1 or pressjudge==1:
+					break
+				else:
+		   			print("now in rocket ,taking photo")
+				time.sleep(2)
+				tx2=time.time()
 			else:
-		   		print("now in rocket ,taking photo")
-			time.sleep(2)
-			tx2=time.time()
-		else:
-			print("RELEASE TIMEOUT")
-		print("THE ROVER HAS RELEASED")
-		pi.write(22,1)
+				print("RELEASE TIMEOUT")
+			print("THE ROVER HAS RELEASED")
+			pi.write(22,1)
 
-		# ------------------- Landing Fhase ------------------- #
-		print("Releasing Judgement Program Start  {0}".format(time.time()))
-		ty1=time.time()
-		ty2=ty1
-		gpsData = GPS.readGPS()
-		bme280Data=BME280.bme280_read()
-		PRESS[0]=bme280Data[1]
-		while(ty2-ty1<=y):
-			pressjudge=Land.pressjudge()
-			gpsjudge=Land.gpsjudge()
-			if pressjudge ==1 and gpsjudge ==1:
-			    break
-			elif pressjudge==0 and gpsjudge==0:
-			    print("Descend now taking photo")
-			elif pressjudge==1 or gpsjudge==1:
-			    print("landjudgementnow")
-			time.sleep(3)
-			ty2=time.time()
-		else:
-			print("RELEASE TIMEOUT")
-		print("THE ROVER HAS LANDED")
+		# ------------------- Landing Phase ------------------- #
+		with open('log/phaseLog.txt', 'a') as f:
+			f.write("4\tLanding Phase Started\t{0}",format(time.time()))	
+		if(phaseLog <= 4):
+			print("Releasing Judgement Program Start  {0}".format(time.time()))
+			ty1=time.time()
+			ty2=ty1
+			gpsData = GPS.readGPS()
+			bme280Data=BME280.bme280_read()
+			PRESS[0]=bme280Data[1]
+			while(ty2-ty1<=y):
+				pressjudge=Land.pressjudge()
+				gpsjudge=Land.gpsjudge()
+				if pressjudge ==1 and gpsjudge ==1:
+			    	break
+				elif pressjudge==0 and gpsjudge==0:
+				    print("Descend now taking photo")
+				elif pressjudge==1 or gpsjudge==1:
+				    print("landjudgementnow")
+				time.sleep(3)
+				ty2=time.time()
+			else:
+				print("RELEASE TIMEOUT")
+			print("THE ROVER HAS LANDED")
 				
-		# ------------------- Melting Fhase ------------------- #
-		Melting.Melting()
+		# ------------------- Melting Phase ------------------- #
+		with open('log/phaseLog.txt', 'a') as f:
+			f.write("5\tMelting Phase Started\t{0}",format(time.time()))	
+		if(phaseLog <= 5):
+			Melting.Melting()
 
-		# ------------------- Avoidance of Parachute Fhase ------------------- #
-		print("START: Judge covered by Parachute")
-		ParaAvoidance.ParaJudge()
-		print("START: Parachute avoidance")
-		ParaAvoidance.ParaAvoidance()
+		# ------------------- ParaAvoidance Phase ------------------- #
+		with open('log/phaseLog.txt', 'a') as f:
+			f.write("6\tParaAvoidance Phase Started\t{0}",format(time.time()))	
+		if(phaseLog <= 6):
+			print("START: Judge covered by Parachute")
+			ParaAvoidance.ParaJudge()
+			print("START: Parachute avoidance")
+			ParaAvoidance.ParaAvoidance()
 
 		close()
 	except KeyboardInterrupt:
