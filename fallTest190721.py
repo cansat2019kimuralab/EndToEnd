@@ -83,20 +83,20 @@ def close():
 if __name__ == "__main__":
 	try:
 		with open('log/phaseLog.txt', 'a') as f:
-			f.write("1\tProgram Started\t{0}",format(time.time()))	
+			f.write("1\tProgram Started\t{0}".format(time.time()))	
 		# ------------------- Setup Phase --------------------- #
 		print("Program Start  {0}".format(time.time()))
 		setup()
 
 		# ------------------- Waiting Phase --------------------- #
 		with open('log/phaseLog.txt', 'a') as f:
-			f.write("2\tRelease Phase Started\t{0}",format(time.time()))		
+			f.write("2\tRelease Phase Started\t{0}".format(time.time()))		
 		if(phase <= 2):
 			time.sleep(t_setup)
 
 		# ------------------- Release Phase ------------------- #
 		with open('log/phaseLog.txt', 'a') as f:
-			f.write("3\tRelease Phase Started\t{0}",format(time.time()))
+			f.write("3\tRelease Phase Started\t{0}".format(time.time()))
 		if(phaseLog <= 3):
 			tx1 = time.time()
 			tx2 = tx1
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
 		# ------------------- Landing Phase ------------------- #
 		with open('log/phaseLog.txt', 'a') as f:
-			f.write("4\tLanding Phase Started\t{0}",format(time.time()))	
+			f.write("4\tLanding Phase Started\t{0}".format(time.time()))	
 		if(phaseLog <= 4):
 			print("Releasing Judgement Program Start  {0}".format(time.time()))
 			ty1=time.time()
@@ -149,13 +149,13 @@ if __name__ == "__main__":
 				
 		# ------------------- Melting Phase ------------------- #
 		with open('log/phaseLog.txt', 'a') as f:
-			f.write("5\tMelting Phase Started\t{0}",format(time.time()))	
+			f.write("5\tMelting Phase Started\t{0}".format(time.time()))	
 		if(phaseLog <= 5):
 			Melting.Melting()
 
 		# ------------------- ParaAvoidance Phase ------------------- #
 		with open('log/phaseLog.txt', 'a') as f:
-			f.write("6\tParaAvoidance Phase Started\t{0}",format(time.time()))	
+			f.write("6\tParaAvoidance Phase Started\t{0}".format(time.time()))	
 		if(phaseLog <= 6):
 			print("START: Judge covered by Parachute")
 			ParaAvoidance.ParaJudge()
