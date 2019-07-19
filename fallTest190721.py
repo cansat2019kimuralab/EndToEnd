@@ -6,6 +6,10 @@ sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BME280')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BMX055')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Camera')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2561')
+sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Melting’)
+sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Motor’)
+sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/ParaAvoidance’)
+
 import time
 import difflib
 import pigpio
@@ -19,6 +23,12 @@ import Capture
 import TSL2561
 import Release
 import Land
+import GPS
+import Melting
+import Motor
+import TSL2561
+import ParaAvoidance
+		
 luxstr = ["lux1", "lux2"]																#variable to show lux returned variables
 bme280str = ["temp", "pres", "hum", "alt"]												#variable to show bme280 returned variables
 bmx055str = ["accx", "accy", "accz", "gyrx", "gyry", "gyrz", "dirx", "diry", "dirz"]	#variable to show bmx055 returned variables
