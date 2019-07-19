@@ -106,7 +106,7 @@ if __name__ == "__main__":
 			#PRESS[0]=bme280Data[1]
 			while (tx2-tx1<=x):
 				luxjudge=Release.luxjudge()
-				pressjudge=Release.pressjuge()
+				pressjudge=Release.pressjudge()
 				
 				if luxjudge==1 or pressjudge==1:
 					break
