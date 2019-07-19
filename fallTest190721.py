@@ -1,4 +1,4 @@
-	# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import sys
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/GPS')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/IM920')
@@ -31,44 +31,54 @@ import TSL2561
 import ParaAvoidance
 import Other
 
+phaseLog = 0	#variable for phase Check
 luxstr = ["lux1", "lux2"]																#variable to show lux returned variables
 bme280str = ["temp", "pres", "hum", "alt"]												#variable to show bme280 returned variables
 bmx055str = ["accx", "accy", "accz", "gyrx", "gyry", "gyrz", "dirx", "diry", "dirz"]	#variable to show bmx055 returned variables
 gpsstr = ["utctime", "lat", "lon", "sHeight", "gHeight"]								#variable to show GPS returned variables
 PRESS=[0.0,0.0]
-t_setup = 10	#variable to set waiting time after setup
 
+t_setup = 10	#variable to set waiting time after setup
 t = 1	#waitingtime
 x = 120	#time for release(loopx)
 y = 60	#time for land(loopy)
+
 #lcount=0
 acount=0
 Pcount=0
 GAcount=0
 luxmax=300
 deltHmax=5
+
 pi=pigpio.pi()
-def gpsSend(gpsData):
-	IM920.Send('g'+str(gpsData[0]) + ',' + str(gpsData[1]) + ',' + str(gpsData[2]) + ',' + str(gpsData[3]) + ',' + str(gpsData[4]) + ',' + str(gpsData[5]))
+
 def setup():
 	pi.set_mode(22,pigpio.OUTPUT)
-	pi.write(22,0)#IM920
-	pi.write(17,0)#outcasing
+	pi.write(22,0)	#IM920
+	pi.write(17,0)	#outcasing
 	time.sleep(1)
 	BME280.bme280_setup()
 	BME280.bme280_calib_param()
-#	BMX055.bmx055_setup()
+	BMX055.bmx055_setup()
 	GPS.openGPS()
+
+	with open('log/phaseLog.txt', 'a') as f:
+		pass
 	with open('log/releaseLog.txt', 'a') as f:
 		pass
-	with open('log/landingLog.txt', 'a') as f2:
+	with open('log/landingLog.txt', 'a') as f:
 		pass
-	with open('log/runningLog.txt', 'a') as f3:
+	with open('log/runningLog.txt', 'a') as f:
 		pass
+	phaseLog = Other.phaseCheck('log/phaseLog.txt', 'a')
+	print(phaseLog)
 
 def close():
 	GPS.closeGPS()
-	#it may be necessarry to down low status some gpio pins 
+	pi.write(22, 0)
+	pi.write(17.0)
+	Motor.motor(0, 0, 1)
+	Motor.motor_stop()
 
 if __name__ == "__main__":
 	try:
@@ -76,12 +86,10 @@ if __name__ == "__main__":
 		print("Program Start  {0}".format(time.time()))
 		setup()
 		time.sleep(t_setup)
-	
 
-
+		# ------------------- Release Fhase ------------------- #
 		tx1 = time.time()
 		tx2 = tx1
-		# ------------------- Release Fhase ------------------- #
 		print("Releasing Judgement Program Start  {0}".format(time.time()))
 		#loopx
 		bme280Data=BME280.bme280_read()
@@ -99,6 +107,7 @@ if __name__ == "__main__":
 			print("RELEASE TIMEOUT")
 		print("THE ROVER HAS RELEASED")
 		pi.write(22,1)
+
 		# ------------------- Landing Fhase ------------------- #
 		print("Releasing Judgement Program Start  {0}".format(time.time()))
 		ty1=time.time()
@@ -130,6 +139,7 @@ if __name__ == "__main__":
 		print("START: Parachute avoidance")
 		ParaAvoidance.ParaAvoidance()
 
+		close()
 	except KeyboardInterrupt:
 		close()
 		print("Keyboard Interrupt")
