@@ -91,7 +91,7 @@ if __name__ == "__main__":
 		# ------------------- Waiting Phase --------------------- #
 		with open('log/phaseLog.txt', 'a') as f:
 			f.write("2\tRelease Phase Started\t{0}".format(time.time()))		
-		if(phaselog <= 2):
+		if(phaseLog <= 2):
 			time.sleep(t_setup)
 
 		# ------------------- Release Phase ------------------- #
