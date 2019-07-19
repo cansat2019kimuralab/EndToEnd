@@ -82,7 +82,7 @@ if __name__ == "__main__":
 		tx1 = time.time()
 		tx2 = tx1
 		# ------------------- Release Fhase ------------------- #
-		print("Releasing Judgement Program Start  {0}".format(time.time()))
+		print("Releasing Judgement Program Start  {0}".format(time.asctime()))
 		#loopx
 		bme280Data=BME280.bme280_read()
 		PRESS[0]=bme280Data[1]
