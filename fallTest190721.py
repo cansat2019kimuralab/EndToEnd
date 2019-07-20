@@ -91,21 +91,18 @@ def close():
 if __name__ == "__main__":
 	try:
 		t_start = time.time()
-		with open(phaseLog, 'a') as f:
-			f.write("1\tProgram Started\t{0}".format(time.time() - t_start))	
+		Other.saveLog("1", "Program Started", time.time() - t_start)
 		# ------------------- Setup Phase --------------------- #
 		print("Program Start  {0}".format(time.time()))
 		setup()
 
 		# ------------------- Waiting Phase --------------------- #
-		with open(phaseLog, 'a') as f:
-			f.write("2\tRelease Phase Started\t{0}".format(time.time() - t_start))		
+		Other.saveLog("2", "Waiting Phase Started", time.time() - t_start)
 		if(phaseLog <= 2):
 			time.sleep(t_setup)
 
 		# ------------------- Release Phase ------------------- #
-		with open(phaseLog, 'a') as f:
-			f.write("3\tRelease Phase Started\t{0}".format(time.time() - t_start))
+		Other.saveLog("3", "Release Phase Started", time.time() - t_start)
 		if(phaseLog <= 3):
 			tx1 = time.time()
 			tx2 = tx1
@@ -132,8 +129,7 @@ if __name__ == "__main__":
 			IM920.Send("RELEASE")
 
 		# ------------------- Landing Phase ------------------- #
-		with open(phaseLog, 'a') as f:
-			f.write("4\tLanding Phase Started\t{0}".format(time.time() - t_start))	
+		Other.saveLog("4", "Landing Phase Started", time.time() - t_start)
 		if(phaseLog <= 4):
 			print("Releasing Judgement Program Start  {0}".format(time.time() - t_start))
 			ty1=time.time()
@@ -166,16 +162,14 @@ if __name__ == "__main__":
 			IM920.Send("LAND")
 				
 		# ------------------- Melting Phase ------------------- #
-		with open(phaseLog, 'a') as f:
-			f.write("5\tMelting Phase Started\t{0}".format(time.time() - t_start))	
+		Other.saveLog("5", "Melting Phase Started", time.time() - t_start)
 		if(phaseLog <= 5):
 			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Start", time.time() - t_start)
 			Melting.Melting()
 			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Finished", time.time() - t_start)
 
 		# ------------------- ParaAvoidance Phase ------------------- #
-		with open(phaseLog, 'a') as f:
-			f.write("6\tParaAvoidance Phase Started\t{0}".format(time.time()  - t_start))	
+		Other.saveLog("6", "ParaAvoidance Phase Started", time.time() - t_start)
 		if(phaseLog <= 6):
 			Other.saveLog(paraAvoidanceLog, gpsData, "ParaAvoidance Start")
 			print("START: Judge covered by Parachute")
