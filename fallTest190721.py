@@ -142,6 +142,10 @@ if __name__ == "__main__":
 			#	elif pressjudge==1 or gpsjudge==1:
 			#	    print("landjudgementnow")
 				time.sleep(3)
+				gpsData = GPS.readGPS()
+				bme280Data=BME280.bme280_read()
+				bmx055data=BMX055.bmx055_read()
+				Other.saveLog('log/landingLog.txt',gpsData,bme280Data,bmx055data)
 				ty2=time.time()
 			else:
 				print("LAND TIMEOUT")
