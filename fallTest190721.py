@@ -54,11 +54,9 @@ t_start  = 0.0	#time when program started
 acount=0
 Pcount=0
 GAcount=0
-luxmax=300
 deltHmax=5
-PRESS=[]
 luxjudge = 0
-luxjudge = 0
+pressjudge=0
 pi=pigpio.pi()
 
 paraExsist = 0 	#variable used for Para Detection
