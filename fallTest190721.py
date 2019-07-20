@@ -137,7 +137,7 @@ if __name__ == "__main__":
 				pressjudge=Land.pressjudge()
 				gpsjudge=Land.gpsjudge()
 				if pressjudge ==1 and gpsjudge ==1:
-			    	break
+					break
 				elif pressjudge==0 and gpsjudge==0:
 				    print("Descend now taking photo")
 				elif pressjudge==1 or gpsjudge==1:
