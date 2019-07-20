@@ -1,4 +1,4 @@
-es# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import sys
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/GPS')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/IM920')
