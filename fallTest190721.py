@@ -33,7 +33,7 @@ import ParaDetection
 import ParaAvoidance
 import Other
 
-phaseLog = 0	#variable for phase Check
+phaseChk = 0	#variable for phase Check
 luxstr = ["lux1", "lux2"]																#variable to show lux returned variables
 bme280str = ["temp", "pres", "hum", "alt"]												#variable to show bme280 returned variables
 bmx055str = ["accx", "accy", "accz", "gyrx", "gyry", "gyrz", "dirx", "diry", "dirz"]	#variable to show bmx055 returned variables
@@ -67,6 +67,8 @@ paraAvoidanceLog = "log/paraAvoidanceLog.txt"
 
 
 def setup():
+	global phaseChk
+
 	pi.set_mode(22,pigpio.OUTPUT)
 	pi.write(22,0)	#IM920
 	pi.write(17,0)	#outcasing
@@ -78,8 +80,9 @@ def setup():
 
 	with open(phaseLog, 'a') as f:
 		pass
-	phaseLog = Other.phaseCheck('log/phaseLog.txt')
-	print(phaseLog)
+
+	phaseChk = int(Other.phaseCheck('log/phaseLog.txt'))
+	print(phaseChk)
 
 def close():
 	GPS.closeGPS()
@@ -91,19 +94,19 @@ def close():
 if __name__ == "__main__":
 	try:
 		t_start = time.time()
-		Other.saveLog("1", "Program Started", time.time() - t_start)
 		# ------------------- Setup Phase --------------------- #
 		print("Program Start  {0}".format(time.time()))
 		setup()
+		print(phaseChk)
 
 		# ------------------- Waiting Phase --------------------- #
-		Other.saveLog("2", "Waiting Phase Started", time.time() - t_start)
-		if(phaseLog <= 2):
+		Other.saveLog(phaseLog, "2", "Waiting Phase Started", [time.time() - t_start])
+		if(phaseChk <= 2):
 			time.sleep(t_setup)
 
 		# ------------------- Release Phase ------------------- #
-		Other.saveLog("3", "Release Phase Started", time.time() - t_start)
-		if(phaseLog <= 3):
+		Other.saveLog(phaseLog, "3", "Release Phase Started", [time.time() - t_start])
+		if(phaseChk <= 3):
 			tx1 = time.time()
 			tx2 = tx1
 			print("Releasing Judgement Program Start  {0}".format(time.time() - t_start))
@@ -112,7 +115,7 @@ if __name__ == "__main__":
 			while (tx2-tx1<=x):
 				luxjudge=Release.luxjudge()
 				pressjudge=Release.pressjudge()
-				
+
 				if luxjudge==1 or pressjudge==1:
 					break
 				else:
@@ -129,9 +132,9 @@ if __name__ == "__main__":
 			IM920.Send("RELEASE")
 
 		# ------------------- Landing Phase ------------------- #
-		Other.saveLog("4", "Landing Phase Started", time.time() - t_start)
-		if(phaseLog <= 4):
-			print("Releasing Judgement Program Start  {0}".format(time.time() - t_start))
+		Other.saveLog(phaseLog, "4", "Landing Phase Started", [time.time() - t_start])
+		if(phaseChk <= 4):
+			print("Landing Judgement Program Start  {0}".format(time.time() - t_start))
 			ty1=time.time()
 			ty2=ty1
 			#loopy
@@ -149,35 +152,35 @@ if __name__ == "__main__":
 				gpsData = GPS.readGPS()
 				bme280Data=BME280.bme280_read()
 				bmx055data=BMX055.bmx055_read()
-				Other.saveLog(landingLog ,GPS.readGPS, BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
-				Other.saveLog(landingLog ,GPS.readGPS, BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
-				Other.saveLog(landingLog ,GPS.readGPS, BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
 				ty2=time.time()
 			else:
 				print("LAND TIMEOUT")
 			print("THE ROVER HAS LANDED")
 			IM920.Send("LAND")
-				
+
 		# ------------------- Melting Phase ------------------- #
-		Other.saveLog("5", "Melting Phase Started", time.time() - t_start)
-		if(phaseLog <= 5):
-			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Start", time.time() - t_start)
+		Other.saveLog(phaseLog,"5", "Melting Phase Started", [time.time() - t_start])
+		if(phaseChk <= 5):
+			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Start", [time.time() - t_start])
 			Melting.Melting()
-			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Finished", time.time() - t_start)
+			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Finished", [time.time() - t_start])
 
 		# ------------------- ParaAvoidance Phase ------------------- #
-		Other.saveLog("6", "ParaAvoidance Phase Started", time.time() - t_start)
-		if(phaseLog <= 6):
+		Other.saveLog(phaseLog, "6", "ParaAvoidance Phase Started", [time.time() - t_start])
+		if(phaseChk <= 6):
 			Other.saveLog(paraAvoidanceLog, gpsData, "ParaAvoidance Start")
 			print("START: Judge covered by Parachute")
 			ParaAvoidance.ParaJudge()
 			print("START: Parachute avoidance")
 			paraExsist = ParaAvoidance.ParaAvoidance()
-			Other.saveLog(paraAvoidanceLog, gpsData, paraExsistm, time.time() - t_start)
-			Other.saveLog(paraAvoidanceLog, gpsData, "ParaAvoidance Fineshed", time.time() - t_start)
+			Other.saveLog(paraAvoidanceLog, gpsData, paraExsist, [time.time() - t_start])
+			Other.saveLog(paraAvoidanceLog, gpsData, "ParaAvoidance Fineshed", [time.time() - t_start])
 
 		close()
 	except KeyboardInterrupt:
