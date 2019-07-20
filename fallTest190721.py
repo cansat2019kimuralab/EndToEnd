@@ -38,9 +38,9 @@ luxstr = ["lux1", "lux2"]																#variable to show lux returned variable
 bme280str = ["temp", "pres", "hum", "alt"]												#variable to show bme280 returned variables
 bmx055str = ["accx", "accy", "accz", "gyrx", "gyry", "gyrz", "dirx", "diry", "dirz"]	#variable to show bmx055 returned variables
 gpsstr = ["utctime", "lat", "lon", "sHeight", "gHeight"]								#variable to show GPS returned variables
-global gpsData
-global bme280Data
-global bmx055data
+gpsData=GPS.readGPS()
+bme280Data=BME280.bme280_read()
+bmx055data=BMX055.bmx055_read()
 
 t_setup = 1	#variable to set waiting time after setup
 t = 1	#waitingtime
@@ -177,13 +177,13 @@ if __name__ == "__main__":
 		# ------------------- ParaAvoidance Phase ------------------- #
 		Other.saveLog(phaseLog, "6", "ParaAvoidance Phase Started", [time.time() - t_start])
 		if(phaseChk <= 6):
-			Other.saveLog(paraAvoidanceLog, gpsData, "ParaAvoidance Start")
+			Other.saveLog(paraAvoidanceLog, GPS.readGPS(), "ParaAvoidance Start")
 			print("START: Judge covered by Parachute")
 			ParaAvoidance.ParaJudge()
 			print("START: Parachute avoidance")
 			paraExsist = ParaAvoidance.ParaAvoidance()
-			Other.saveLog(paraAvoidanceLog, gpsData, paraExsist, [time.time() - t_start])
-			Other.saveLog(paraAvoidanceLog, gpsData, "ParaAvoidance Fineshed", [time.time() - t_start])
+			Other.saveLog(paraAvoidanceLog, GPS.readGPS(), paraExsist, [time.time() - t_start])
+			Other.saveLog(paraAvoidanceLog, GPS.readGPS(), "ParaAvoidance Fineshed", [time.time() - t_start])
 
 		close()
 	except KeyboardInterrupt:
