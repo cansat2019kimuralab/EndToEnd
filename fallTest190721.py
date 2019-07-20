@@ -111,11 +111,11 @@ if __name__ == "__main__":
 					break
 				else:
 		   			print("now in rocket ,taking photo")
-				time.sleep(2)
 				gpsData=GPS.readGPS()
 				bmx055data=BMX055.bmx055_read()
 				luxdata=TSL2561.readLux()
 				Other.saveLog('log/releaseLog.txt',gpsData,bme280Data,luxdata,bmx055data)
+				time.sleep(2)
 				tx2=time.time()
 			else:
 				print("RELEASE TIMEOUT")
@@ -141,11 +141,11 @@ if __name__ == "__main__":
 				    print("Descend now taking photo")
 			#	elif pressjudge==1 or gpsjudge==1:
 			#	    print("landjudgementnow")
-				time.sleep(3)
 				gpsData = GPS.readGPS()
 				bme280Data=BME280.bme280_read()
 				bmx055data=BMX055.bmx055_read()
 				Other.saveLog('log/landingLog.txt',gpsData,bme280Data,bmx055data)
+				time.sleep(3)
 				ty2=time.time()
 			else:
 				print("LAND TIMEOUT")
