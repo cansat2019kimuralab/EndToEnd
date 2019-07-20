@@ -162,6 +162,7 @@ if __name__ == "__main__":
 			else:
 				print("LAND TIMEOUT")
 			print("THE ROVER HAS LANDED")
+			pi.write(22,1)
 			IM920.Send("LAND")
 
 		# ------------------- Melting Phase ------------------- #
