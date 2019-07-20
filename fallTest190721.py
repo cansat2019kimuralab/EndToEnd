@@ -45,7 +45,7 @@ bmx055data=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
 
 t_setup = 1	#variable to set waiting time after setup
 t = 1	#waitingtime
-x = 120	#time for release(loopx)
+x = 60	#time for release(loopx)
 y = 60	#time for land(loopy)
 
 t_start  = 0.0	#time when program started
@@ -57,6 +57,8 @@ GAcount=0
 luxmax=300
 deltHmax=5
 PRESS=[]
+luxjudge = 0
+
 pi=pigpio.pi()
 
 paraExsist = 0 	#variable used for Para Detection
@@ -172,15 +174,19 @@ if __name__ == "__main__":
 			IM920.Send("LAND")
 
 		# ------------------- Melting Phase ------------------- #
+		IM920.Send("Melt")
 		Other.saveLog(phaseLog,"5", "Melting Phase Started", time.time() - t_start)
 		if(phaseChk <= 5):
+			print("Melting Phase Started")
 			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Start", time.time() - t_start)
 			Melting.Melting()
 			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Finished", time.time() - t_start)
 
 		# ------------------- ParaAvoidance Phase ------------------- #
+		IM920.Send("ParaAvo")
 		Other.saveLog(phaseLog, "6", "ParaAvoidance Phase Started", time.time() - t_start)
 		if(phaseChk <= 6):
+			print("ParaAvoidance Phase Started")
 			Other.saveLog(paraAvoidanceLog, GPS.readGPS(), "ParaAvoidance Start", time.time() - t_start)
 			print("START: Judge covered by Parachute")
 			ParaAvoidance.ParaJudge()
@@ -189,12 +195,13 @@ if __name__ == "__main__":
 			Other.saveLog(paraAvoidanceLog, GPS.readGPS(), paraExsist, time.time() - t_start)
 			Other.saveLog(paraAvoidanceLog, GPS.readGPS(), "ParaAvoidance Fineshed", time.time() - t_start)
 
+		IM920.Send("Progam Finished")
 		close()
 	except KeyboardInterrupt:
 		close()
 		print("Keyboard Interrupt")
-
 	except Exception as e:
+		IM920.Send("error")
+		Other.saveLog("/home/pi/log/errorLog.txt", "Error")
 		close()
 		print(e.message)
-		IM920.Send("error")
