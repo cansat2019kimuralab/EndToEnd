@@ -130,8 +130,8 @@ if __name__ == "__main__":
 			else:
 				print("RELEASE TIMEOUT")
 			print("THE ROVER HAS RELEASED")
-			time.sleep(2)
 			pi.write(22,1)
+			time.sleep(2)
 			IM920.Send("RELEASE")
 
 		# ------------------- Landing Phase ------------------- #
