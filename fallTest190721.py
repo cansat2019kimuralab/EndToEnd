@@ -41,7 +41,7 @@ gpsstr = ["utctime", "lat", "lon", "sHeight", "gHeight"]								#variable to sho
 t_setup = 1	#variable to set waiting time after setup
 t = 1	#waitingtime
 x = 120	#time for release(loopx)
-y = 240	#time for land(loopy)
+y = 60	#time for land(loopy)
 
 #lcount=0
 acount=0
