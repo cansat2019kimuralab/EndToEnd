@@ -41,7 +41,7 @@ gpsstr = ["utctime", "lat", "lon", "sHeight", "gHeight"]								#variable to sho
 t_setup = 1	#variable to set waiting time after setup
 t = 1	#waitingtime
 x = 120	#time for release(loopx)
-y = 60	#time for land(loopy)
+y = 240	#time for land(loopy)
 
 #lcount=0
 acount=0
@@ -145,7 +145,7 @@ if __name__ == "__main__":
 				time.sleep(3)
 				ty2=time.time()
 			else:
-				print("RELEASE TIMEOUT")
+				print("LAND TIMEOUT")
 			print("THE ROVER HAS LANDED")
 				
 		# ------------------- Melting Phase ------------------- #
