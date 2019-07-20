@@ -128,6 +128,7 @@ if __name__ == "__main__":
 				print("RELEASE TIMEOUT")
 			print("THE ROVER HAS RELEASED")
 			pi.write(22,1)
+			IM920.Send("RELEASE")
 
 		# ------------------- Landing Phase ------------------- #
 		with open('log/phaseLog.txt', 'a') as f:
@@ -167,6 +168,7 @@ if __name__ == "__main__":
 			else:
 				print("LAND TIMEOUT")
 			print("THE ROVER HAS LANDED")
+			IM920.Send("LAND")
 				
 		# ------------------- Melting Phase ------------------- #
 		with open('log/phaseLog.txt', 'a') as f:
@@ -187,6 +189,8 @@ if __name__ == "__main__":
 	except KeyboardInterrupt:
 		close()
 		print("Keyboard Interrupt")
+
 	except Exception as e:
 		close()
 		print(e.message)
+		IM920.Send("error")
