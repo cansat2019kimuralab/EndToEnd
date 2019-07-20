@@ -58,7 +58,7 @@ luxmax=300
 deltHmax=5
 PRESS=[]
 luxjudge = 0
-
+luxjudge = 0
 pi=pigpio.pi()
 
 paraExsist = 0 	#variable used for Para Detection
