@@ -144,6 +144,7 @@ if __name__ == "__main__":
 			gpsData = GPS.readGPS()
 			bme280Data=BME280.bme280_read()
 			while(ty2-ty1<=y):
+				IM920.Send("loopY")
 				pressjudge=Land.pressjudge()
 			#	gpsjudge=Land.gpsjudge()
 				if pressjudge ==1 :#and gpsjudge ==1:
