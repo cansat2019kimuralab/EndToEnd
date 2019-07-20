@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+es# -*- coding: utf-8 -*-
 import sys
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/GPS')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/IM920')
@@ -78,7 +78,7 @@ def setup():
 def close():
 	GPS.closeGPS()
 	pi.write(22, 0)
-	pi.write(17.0)
+	pi.write(17,0)
 	Motor.motor(0, 0, 1)
 	Motor.motor_stop()
 
