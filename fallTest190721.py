@@ -103,7 +103,6 @@ if __name__ == "__main__":
 			print("Releasing Judgement Program Start  {0}".format(time.time()))
 			#loopx
 			bme280Data=BME280.bme280_read()
-			#PRESS[0]=bme280Data[1]
 			while (tx2-tx1<=x):
 				luxjudge=Release.luxjudge()
 				pressjudge=Release.pressjudge()
@@ -130,18 +129,18 @@ if __name__ == "__main__":
 			print("Releasing Judgement Program Start  {0}".format(time.time()))
 			ty1=time.time()
 			ty2=ty1
+			#loopy
 			gpsData = GPS.readGPS()
 			bme280Data=BME280.bme280_read()
-			#PRESS[0]=bme280Data[1]
 			while(ty2-ty1<=y):
 				pressjudge=Land.pressjudge()
-				gpsjudge=Land.gpsjudge()
-				if pressjudge ==1 and gpsjudge ==1:
+			#	gpsjudge=Land.gpsjudge()
+				if pressjudge ==1 :#and gpsjudge ==1:
 					break
-				elif pressjudge==0 and gpsjudge==0:
+				elif pressjudge==0 :#and gpsjudge==0:
 				    print("Descend now taking photo")
-				elif pressjudge==1 or gpsjudge==1:
-				    print("landjudgementnow")
+			#	elif pressjudge==1 or gpsjudge==1:
+			#	    print("landjudgementnow")
 				time.sleep(3)
 				ty2=time.time()
 			else:
