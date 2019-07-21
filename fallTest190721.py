@@ -43,10 +43,10 @@ gpsData=[0.0,0.0,0.0,0.0,0.0]
 bme280Data=[0.0,0.0,0.0,0.0]
 bmx055data=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
 
-t_setup = 300	#variable to set waiting time after setup
+t_setup = 60	#variable to set waiting time after setup
 t = 1			#Unknown Variable
-x = 60			#time for release(loopx)
-y = 60			#time for land(loopy)
+x = 600			#time for release(loopx)
+y = 180			#time for land(loopy)
 
 t_start  = 0.0	#time when program started
 
@@ -108,6 +108,7 @@ if __name__ == "__main__":
 		if(phaseChk <= 2):
 			t_wait_start = time.time()
 			while(time.time() - t_wait_start <= t_setup):
+				Other.saveLog(waitingLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
 				print("Waiting")
 				IM920.Send("Sleep")
 				time.sleep(1)
@@ -123,17 +124,22 @@ if __name__ == "__main__":
 			#loopx
 			bme280Data=BME280.bme280_read()
 			while (tx2-tx1<=x):
-				luxjudge=Release.luxjudge()
-				pressjudge=Release.pressjudge()
+				luxjudge = Release.luxjudge()
+				pressjudge = Release.pressjudge()
 
 				if luxjudge==1 or pressjudge==1:
 					break
 				else:
+					#pass
 		   			print("now in rocket ,taking photo")
-				Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
-				time.sleep(1)
-				Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
-				time.sleep(1)
+				Other.saveLog(releaseLog, time.time() - t_start, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
+				#Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+
+				time.sleep(0.5)
+				Other.saveLog(releaseLog, time.time() - t_start, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
+				#Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				
+				time.sleep(0.5)
 				tx2=time.time()
 			else:
 				print("RELEASE TIMEOUT")
@@ -197,7 +203,7 @@ if __name__ == "__main__":
 			print("START: Parachute avoidance")
 			paraExsist = ParaAvoidance.ParaAvoidance()
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraExsist)
-			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Fineshed")
+			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Finished")
 
 		IM920.Send("Progam Finished")
 		close()
