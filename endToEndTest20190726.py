@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/GPS')
-sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/IM920')
+sys.path.append('/home/pi/git/kimuralab/Detection/ParachuteDetection')
+sys.path.append('/home/pi/git/kimuralab/Detection/ReleaseAndLandingDetection')
+sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/ParaAvoidance')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BME280')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BMX055')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Camera')
-sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2561')
-sys.path.append('/home/pi/git/kimuralab/Detection/ParachuteDetection')
-sys.path.append('/home/pi/git/kimuralab/Detection/ReleaseAndLandingDetection')
+sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/GPS')
+sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/IM920')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Melting')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Motor')
-sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/ParaAvoidance')
+sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2561')
 sys.path.append('/home/pi/git/kimuralab/Other')
 
 import binascii
@@ -37,10 +37,12 @@ phaseChk = 0	#variable for phase Check
 
 # --- variable of time setting --- #
 t_start  = 0.0	#time when program started
-t_setup = 60	#time for sleep phase
+t_sleep = 60	#time for sleep phase
+t_melt = 5		#time for melting
 x = 600			#time for release(loopx)
 y = 180			#time for land(loopy)
 
+# --- variable for storing sensor data --- #
 gpsData=[0.0,0.0,0.0,0.0,0.0]                       #variable to store GPS data
 bme280Data=[0.0,0.0,0.0,0.0]                        #variable to store BME80 data
 bmx055data=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]    #variable to store BMX055 data
@@ -106,7 +108,7 @@ if __name__ == "__main__":
 		Other.saveLog(phaseLog, "2", "Sleep Phase Started", time.time() - t_start)
 		if(phaseChk <= 2):
 			t_wait_start = time.time()
-			while(time.time() - t_wait_start <= t_setup):
+			while(time.time() - t_wait_start <= t_sleep):
 				Other.saveLog(sleepLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
 				print("Sleep")
 				IM920.Send("Sleep")
@@ -188,7 +190,7 @@ if __name__ == "__main__":
 		if(phaseChk <= 5):
 			print("Melting Phase Started")
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Start")
-			Melting.Melting()
+			Melting.Melting(t_melt)
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Finished")
 
 		# ------------------- ParaAvoidance Phase ------------------- #
@@ -207,12 +209,12 @@ if __name__ == "__main__":
         # ------------------- Running Phase ------------------- #
 		Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 		if(phaseChk <= 7):
-            pass
+			pass
 
         # ------------------- GoalDetection Phase ------------------- #
 		Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 		if(phaseChk <= 8):
-            pass
+			pass
 
 		IM920.Send("Progam Finished")
 		close()
@@ -223,5 +225,5 @@ if __name__ == "__main__":
 		IM920.Send("error")
 		close()
 		Other.saveLog(errorLog, time.time() - t_start, "Error")
-        Other.saveLog(errorLog, e.message)
+		Other.saveLog(errorLog, e.message)
 		print(e.message)
