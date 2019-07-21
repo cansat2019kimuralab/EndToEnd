@@ -43,10 +43,10 @@ gpsData=[0.0,0.0,0.0,0.0,0.0]
 bme280Data=[0.0,0.0,0.0,0.0]
 bmx055data=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
 
-t_setup = 1	#variable to set waiting time after setup
-t = 1	#waitingtime
-x = 60	#time for release(loopx)
-y = 60	#time for land(loopy)
+t_setup = 300	#variable to set waiting time after setup
+t = 1			#Unknown Variable
+x = 60			#time for release(loopx)
+y = 60			#time for land(loopy)
 
 t_start  = 0.0	#time when program started
 
@@ -73,9 +73,9 @@ def setup():
 	global phaseChk
 
 	pi.set_mode(22,pigpio.OUTPUT)
-	pi.write(22,1)	#IM920
+	pi.write(22,1)	#IM920	Turn On
 	pi.write(17,0)	#outcasing
-	time.sleep(1)
+	time.sleep(300)
 	BME280.bme280_setup()
 	BME280.bme280_calib_param()
 	BMX055.bmx055_setup()
@@ -101,12 +101,18 @@ if __name__ == "__main__":
 		print("Program Start  {0}".format(time.time()))
 		setup()
 		print(phaseChk)
+		IM920.Send("Start")
 
 		# ------------------- Waiting Phase --------------------- #
 		Other.saveLog(phaseLog, "2", "Waiting Phase Started", time.time() - t_start)
 		if(phaseChk <= 2):
-			pi.write(22, 0)
-			time.sleep(t_setup)
+			t_wait_start = time.time()
+			while(time.time() - t_wait_start <= t_setup):
+				print("Waiting")
+				IM920.Send("Sleep")
+				time.sleep(1)
+			IM920.Send("Waiting Finished")
+			pi.write(22, 0)		#IM920 Turn Off
 
 		# ------------------- Release Phase ------------------- #
 		Other.saveLog(phaseLog, "3", "Release Phase Started", time.time() - t_start)
@@ -124,9 +130,9 @@ if __name__ == "__main__":
 					break
 				else:
 		   			print("now in rocket ,taking photo")
-				Other.saveLog(releaseLog, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
+				Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
 				time.sleep(1)
-				Other.saveLog(releaseLog, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
+				Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
 				time.sleep(1)
 				tx2=time.time()
 			else:
@@ -158,11 +164,11 @@ if __name__ == "__main__":
 				gpsData = GPS.readGPS()
 				bme280Data=BME280.bme280_read()
 				bmx055data=BMX055.bmx055_read()
-				Other.saveLog(landingLog ,GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
-				Other.saveLog(landingLog ,GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
-				Other.saveLog(landingLog ,GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
 				ty2=time.time()
 			else:
@@ -176,22 +182,22 @@ if __name__ == "__main__":
 		Other.saveLog(phaseLog,"5", "Melting Phase Started", time.time() - t_start)
 		if(phaseChk <= 5):
 			print("Melting Phase Started")
-			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Start", time.time() - t_start)
+			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Start")
 			Melting.Melting()
-			Other.saveLog(meltingLog, GPS.readGPS(), "Melting Finished", time.time() - t_start)
+			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Finished")
 
 		# ------------------- ParaAvoidance Phase ------------------- #
 		IM920.Send("ParaAvo")
 		Other.saveLog(phaseLog, "6", "ParaAvoidance Phase Started", time.time() - t_start)
 		if(phaseChk <= 6):
 			print("ParaAvoidance Phase Started")
-			Other.saveLog(paraAvoidanceLog, GPS.readGPS(), "ParaAvoidance Start", time.time() - t_start)
+			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Start")
 			print("START: Judge covered by Parachute")
 			ParaAvoidance.ParaJudge()
 			print("START: Parachute avoidance")
 			paraExsist = ParaAvoidance.ParaAvoidance()
-			Other.saveLog(paraAvoidanceLog, GPS.readGPS(), paraExsist, time.time() - t_start)
-			Other.saveLog(paraAvoidanceLog, GPS.readGPS(), "ParaAvoidance Fineshed", time.time() - t_start)
+			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraExsist)
+			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Fineshed")
 
 		IM920.Send("Progam Finished")
 		close()
@@ -200,6 +206,6 @@ if __name__ == "__main__":
 		print("Keyboard Interrupt")
 	except Exception as e:
 		IM920.Send("error")
-		Other.saveLog("/home/pi/log/errorLog.txt", "Error")
 		close()
+		Other.saveLog("/home/pi/log/errorLog.txt", time.time() - t_start, "Error")
 		print(e.message)
