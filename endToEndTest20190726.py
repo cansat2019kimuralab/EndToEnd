@@ -100,22 +100,22 @@ if __name__ == "__main__":
 	try:
 		t_start = time.time()
 		# ------------------- Setup Phase --------------------- #
+		IM920.Send("P1S")
 		print("Program Start  {0}".format(time.time()))
 		setup()
 		print(phaseChk)
-		IM920.Send("Start")
+		IM920.Send("P1F")
 
 		# ------------------- Sleep Phase --------------------- #
 		Other.saveLog(phaseLog, "2", "Sleep Phase Started", time.time() - t_start)
 		if(phaseChk <= 2):
+			IM920.Send("P2S")
+			pi.write(22, 0)		#IM920 Turn Off
 			t_wait_start = time.time()
 			while(time.time() - t_wait_start <= t_sleep):
 				Other.saveLog(sleepLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
 				print("Sleep")
-				IM920.Send("Sleep")
 				time.sleep(1)
-			IM920.Send("Sleep Finished")
-			pi.write(22, 0)		#IM920 Turn Off
 
 		# ------------------- Release Phase ------------------- #
 		Other.saveLog(phaseLog, "3", "Release Phase Started", time.time() - t_start)
@@ -136,11 +136,10 @@ if __name__ == "__main__":
 		   			print("now in rocket ,taking photo")
 				Other.saveLog(releaseLog, time.time() - t_start, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
 				#Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
-
 				time.sleep(0.5)
+
 				Other.saveLog(releaseLog, time.time() - t_start, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
 				#Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
-				
 				time.sleep(0.5)
 				tx2=time.time()
 			else:
@@ -148,11 +147,12 @@ if __name__ == "__main__":
 			print("THE ROVER HAS RELEASED")
 			pi.write(22,1)
 			time.sleep(2)
-			IM920.Send("RELEASE")
+			IM920.Send("P3F")
 
 		# ------------------- Landing Phase ------------------- #
 		Other.saveLog(phaseLog, "4", "Landing Phase Started", time.time() - t_start)
 		if(phaseChk <= 4):
+			IM920.Send("P4S")
 			print("Landing Judgement Program Start  {0}".format(time.time() - t_start))
 			ty1=time.time()
 			ty2=ty1
@@ -183,21 +183,21 @@ if __name__ == "__main__":
 				print("LAND TIMEOUT")
 			print("THE ROVER HAS LANDED")
 			pi.write(22,1)
-			IM920.Send("LAND")
+			IM920.Send("P4F")
 
 		# ------------------- Melting Phase ------------------- #
-		IM920.Send("Melt")
 		Other.saveLog(phaseLog,"5", "Melting Phase Started", time.time() - t_start)
 		if(phaseChk <= 5):
+			IM920.Send("P5S")
 			print("Melting Phase Started")
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Start")
 			Melting.Melting(t_melt)
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Finished")
-
+			IM920.Send
 		# ------------------- ParaAvoidance Phase ------------------- #
-		IM920.Send("ParaAvo")
 		Other.saveLog(phaseLog, "6", "ParaAvoidance Phase Started", time.time() - t_start)
 		if(phaseChk <= 6):
+			IM920.Send("P6S")
 			print("ParaAvoidance Phase Started")
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Start")
 			print("START: Judge covered by Parachute")
@@ -206,18 +206,21 @@ if __name__ == "__main__":
 			paraExsist = ParaAvoidance.ParaAvoidance()
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraExsist)
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Finished")
+			IM920.Send("P6F")
 
         # ------------------- Running Phase ------------------- #
 		Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 		if(phaseChk <= 7):
-			pass
+			IM920.Send("P7S")
+			IM920.Send("P7F")
 
         # ------------------- GoalDetection Phase ------------------- #
 		Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 		if(phaseChk <= 8):
-			pass
+			IM920.Send("P8S")
+			IM920.Send("P8F")
 
-		IM920.Send("Progam Finished")
+		IM920.Send("P10")
 		close()
 	except KeyboardInterrupt:
 		close()
