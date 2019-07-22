@@ -2,6 +2,7 @@
 import sys
 sys.path.append('/home/pi/git/kimuralab/Detection/ParachuteDetection')
 sys.path.append('/home/pi/git/kimuralab/Detection/ReleaseAndLandingDetection')
+sys.path.append('/home/pi/git/kimuralab/Detection/ParachuteDetection')
 sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/ParaAvoidance')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BME280')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BMX055')
