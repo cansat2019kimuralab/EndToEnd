@@ -225,9 +225,10 @@ if __name__ == "__main__":
 	except KeyboardInterrupt:
 		close()
 		print("Keyboard Interrupt")
-	except Exception as e:
+	except:
 		IM920.Send("error")
 		close()
+    	print(traceback.format_exc())
 		Other.saveLog(errorLog, time.time() - t_start, "Error")
-		Other.saveLog(errorLog, e.message)
-		print(e.message)
+		Other.saveLog(errorLog, traceback.format_exc())
+		Other.saveLog(errorLog. "\n")
