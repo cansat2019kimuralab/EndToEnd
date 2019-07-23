@@ -47,14 +47,13 @@ y = 180			#time for land(loopy)
 gpsData=[0.0,0.0,0.0,0.0,0.0]                       #variable to store GPS data
 bme280Data=[0.0,0.0,0.0,0.0]                        #variable to store BME80 data
 bmx055data=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]    #variable to store BMX055 data
-
-acount=0
-Pcount=0
-GAcount=0
-deltHmax=5
-luxjudge = 0
-pressjudge=0
-
+lcount	#lux count for release
+acount=0	#press count for release
+Pcount=0	#press count for land
+GAcount=0	#GPSheight count for land
+luxjudge = 0	#for release
+pressjudge=0	#for release and land
+gpsjudge=0	#for land
 paraExsist = 0 	#variable for Para Detection    0:Not Exsist, 1:Exsist
 
 # --- variable of Log path --- #
