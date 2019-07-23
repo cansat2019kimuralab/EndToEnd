@@ -1,26 +1,28 @@
 # -*- coding: utf-8 -*-
-
 import sys
+sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/Other')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BME280')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BMX055')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Camera')
-sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Melting')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/GPS')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/IM920')
+sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Melting')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Motor')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2561')
-import time
+import binascii
 import difflib
 import pigpio
-import serial
-import binascii
+import serialimport time
+import traceback
+
 import BMX055
 import BME280
 import Capture
-import Melting
-import IM920
 import GPS
+import IM920
+import Melting
 import Motor
+import Other
 import TSL2561
 
 luxstr = ["lux1", "lux2"]																#variable to show lux returned variable
@@ -36,10 +38,19 @@ z = 10	#variable to set running time
 t1 = 0.0	#vairable to store start time
 t2 = 0.0	#vairable to store time
 
-t = 3	#待機時間
-x = 5	#放出判定の時間
-y = 5	#着地判定の時間
-z = 20	#走行の時間
+t_sleep = 3		#sleep time
+t_release = 5	#release time
+t_landing = 5	#landing time
+t_melting = 5	#melting time
+t_running = 20	#running time
+
+phaseLog = "phaseLo.txt"
+sleepLog = "sleepLog.txt"
+releaseLog = "releaseLog.txt"
+landingLog = "landingLog.txt"
+meltingLog = "meltingLog.txt"
+runningLog = "runningLog.txt"
+errorLog = "errorLog.txt"
 
 count = 0
 
@@ -61,30 +72,27 @@ def setup():
 	BME280.bme280_calib_param()
 	BMX055.bmx055_setup()
 	GPS.openGPS()
-	with open('log/releaseLog.txt', 'w'):
-		pass
-	with open('log/runningLog.txt', 'w'):
-		pass
-	with open('log/landingLog.txt', 'w'):
-		pass
 
 def close():
 	GPS.closeGPS()
+	Motor.motor(0, 0, 2)
 	Motor.motor_stop()
 	pi.write(17, 0)
 
 if __name__ == "__main__":
-	print("Program Start  {0}".format(time.time()))
 	try:
 		# ------------------- Setup Fhase ------------------- #
+		print("Program Start  {0}".format(time.time()))
 		setup()
 
 		time.sleep(x)
+		
+		# ------------------- Release Fhase ------------------- #
 		print("Release Judgement Program Start  {0}".format(time.time()))
 		t1 = time.time()
 		t2 = t1
 		count = 0
-		while(t2-t1 <= x):
+		while(t2-t1 <= t_release):
 			bme280Data = BME280.bme280_read()	#Read BME280 data
 			luxData = TSL2561.readLux()
 			with open('log/releaseLog.txt', 'a') as f:	#Write Log
@@ -107,7 +115,7 @@ if __name__ == "__main__":
 		print("Landing Judgement Program Start  {0}".format(time.time()))
 		t1 = time.time()
 		t2 = t1
-		while(t2 - t1 <= y):
+		while(t2 - t1 <= t_landing):
 			bme280Data = BME280.bme280_read()
 			gpsData = GPS.readGPS()
 			with open('log/landingLog.txt','a') as f:
@@ -144,7 +152,7 @@ if __name__ == "__main__":
 		t1 = time.time()
 		t2 = t1
 		Motor.motor(30, 30, 1)
-		while(t2 - t1 <= z):
+		while(t2 - t1 <= t_running):
 			gpsData = GPS.readGPS()
 			bmx055Data = BMX055.bmx055_read()
 			with open('log/runningLog.txt', 'a') as f:
@@ -168,9 +176,10 @@ if __name__ == "__main__":
 		Motor.motor_stop()
 		close()
 		print("\r\nKeyboard Intruppted")
-	except Exception as e:
-		Motor.motor_stop()
+	except:
+		IM920.Send("error")
 		close()
-		IM920.Send("Error Occured")
-		IM920.Send("Program Stopped")
-		print(e.message)
+		print(traceback.format_exc())
+		Other.saveLog(errorLog, time.time() - t_start, "Error")
+		Other.saveLog(errorLog, traceback.format_exc())
+		Other.saveLog(errorLog, "\n")
