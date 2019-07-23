@@ -99,10 +99,10 @@ def close():
 if __name__ == "__main__":
 	try:
 		t_start = time.time()
-		# ------------------- Setup Phase --------------------- #
+		#-----setup phase ---------#
+		setup()
 		IM920.Send("P1S")
 		print("Program Start  {0}".format(time.time()))
-		setup()
 		print(phaseChk)
 		IM920.Send("P1F")
 
@@ -126,19 +126,19 @@ if __name__ == "__main__":
 			#loopx
 			bme280Data=BME280.bme280_read()
 			while (tx2-tx1<=x):
-				luxjudge = Release.luxjudge()
-				pressjudge = Release.pressjudge()
+				luxjudge,lcount = Release.luxjudge()
+				pressjudge,acount = Release.pressjudge()
 
 				if luxjudge==1 or pressjudge==1:
 					break
 				else:
 					#pass
 		   			print("now in rocket ,taking photo")
-				Other.saveLog(releaseLog, time.time() - t_start, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(releaseLog, time.time() - t_start, lcount, acount, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
 				#Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(0.5)
 
-				Other.saveLog(releaseLog, time.time() - t_start, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(releaseLog, time.time() - t_start, lcount, acount, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
 				#Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(0.5)
 				tx2=time.time()
@@ -161,7 +161,7 @@ if __name__ == "__main__":
 			bme280Data=BME280.bme280_read()
 			while(ty2-ty1<=y):
 				IM920.Send("loopY")
-				pressjudge=Land.pressjudge()
+				pressjudge,Pcount=Land.pressjudge()
 			#	gpsjudge=Land.gpsjudge()
 				if pressjudge ==1 :#and gpsjudge ==1:
 					break
@@ -172,11 +172,11 @@ if __name__ == "__main__":
 				gpsData = GPS.readGPS()
 				bme280Data=BME280.bme280_read()
 				bmx055data=BMX055.bmx055_read()
-				Other.saveLog(landingLog ,time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,time.time() - t_start, Pcount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
-				Other.saveLog(landingLog ,time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,time.time() - t_start, Pcount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
-				Other.saveLog(landingLog ,time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,time.time() - t_start, Pcount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
 				ty2=time.time()
 			else:
@@ -228,7 +228,7 @@ if __name__ == "__main__":
 	except:
 		IM920.Send("error")
 		close()
-    	print(traceback.format_exc())
+		print(traceback.format_exc())
 		Other.saveLog(errorLog, time.time() - t_start, "Error")
 		Other.saveLog(errorLog, traceback.format_exc())
-		Other.saveLog(errorLog. "\n")
+		Other.saveLog(errorLog, "\n")
