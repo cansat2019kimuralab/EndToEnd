@@ -40,16 +40,16 @@ t1 = 0.0		#vairable to store phase start time
 t2 = 0.0		#vairable to store time
 
 # --- variable of Log path --- #
-phaseLog = "phaseLo.txt"
-sleepLog = "sleepLog.txt"
-releaseLog = "releaseLog.txt"
-landingLog = "landingLog.txt"
-meltingLog = "meltingLog.txt"
-runningLog = "runningLog.txt"
-photoLog = "photoLog.txt"
-errorLog = "errorLog.txt"
+phaseLog = "log/phaseLog.txt"
+sleepLog = "log/sleepLog.txt"
+releaseLog = "log/releaseLog.txt"
+landingLog = "log/landingLog.txt"
+meltingLog = "log/meltingLog.txt"
+runningLog = "log/runningLog.txt"
+photoLog = "log/photoLog.txt"
+errorLog = "log/errorLog.txt"
 
-photoPath = "photo/"
+photoPath = "photo/photo"
 
 pi = pigpio.pi()	#object to set pigpio
 
@@ -89,9 +89,9 @@ if __name__ == "__main__":
 			IM920.Send("P1F")
 
 		# ------------------- Sleep Phase --------------------- #
-		print("Sleep Phase Started  {0}".format(time.time()))		
 		Other.saveLog(phaseLog, "2", "Sleep Phase Started", time.time() - t_start)
 		if(phaseChk <= 2):
+			print("Sleep Phase Started  {0}".format(time.time()))
 			IM920.Send("P2S")
 			pi.write(22, 0)		#IM920 Turn Off
 			t_wait_start = time.time()
@@ -102,13 +102,14 @@ if __name__ == "__main__":
 				gpsData = GPS.readGPS()				#Read GPS data
 				Other.saveLog(sleepLog, time.time() - t_start, gpsData, bme280Data, bmx055Data, luxData)
 				photoName = Capture.Capture(photoPath)
+				Other.saveLog(photoLog, time.time() - t_start, photoName)
 				time.sleep(1)
 				t2=time.time()
 
 		# ------------------- Release Fhase ------------------- #
 		Other.saveLog(phaseLog, "3", "Release Phase Started", time.time() - t_start)
-		print("Release Judgement Program Start  {0}".format(time.time()))
 		if(phaseChk <= 3):
+			print("Release Judgement Program Start  {0}".format(time.time()))
 			t1 = time.time()
 			t2 = t1
 			while(t2-t1 <= t_release):
@@ -116,37 +117,39 @@ if __name__ == "__main__":
 				bmx055Data = BMX055.bmx055_read()	#Read BMX055 data
 				luxData = TSL2561.readLux()			#Read TSL2561 data
 				gpsData = GPS.readGPS()				#Read GPS data
-				Other.saveLog(sleepLog, time.time() - t_start, gpsData, bme280Data, bmx055Data, luxData)
+				Other.saveLog(releaseLog, time.time() - t_start, gpsData, bme280Data, bmx055Data, luxData)
 				photoName = Capture.Capture(photoPath)
+				Other.saveLog(photoLog, time.time() - t_start, photoName)
 				time.sleep(1)
 				t2=time.time()
 			pi.write(22, 1)
 			time.sleep(2)
 			IM920.Send("P3F")
 
-		# ------------------- landing Fhase ------------------- #
-		print("Landing  Judgement Program Start  {0}".format(time.time()))
+		# ------------------- Landing Fhase ------------------- #
 		Other.saveLog(phaseLog, "4", "Landing Phase Started", time.time() - t_start)
 		if(phaseChk <= 4):
+			print("Landing  Judgement Program Start  {0}".format(time.time()))
 			IM920.Send("P4S")
 			t1 = time.time()
 			t2 = t1
-			while(t2-t1 <= t_release):
+			while(t2-t1 <= t_landing):
 				bme280Data = BME280.bme280_read()	#Read BME280 data
 				bmx055Data = BMX055.bmx055_read()	#Read BMX055 data
 				luxData = TSL2561.readLux()			#Read TSL2561 data
 				gpsData = GPS.readGPS()				#Read GPS data
-				Other.saveLog(sleepLog, time.time() - t_start, gpsData, bme280Data, bmx055Data, luxData)
+				Other.saveLog(landingLog, time.time() - t_start, gpsData, bme280Data, bmx055Data, luxData)
 				photoName = Capture.Capture(photoPath)
+				Other.saveLog(photoLog, time.time() - t_start, photoName)
 				IM920.Send("P4D")
 				time.sleep(1)
 				t2=time.time()
 			IM920.Send("P4F")
 
-		# - Melting-------------- Fhase ------------------- #
-		print("Melting Program Start  {0}".format(time.time()))
+		# ------------------ Melting Fhase ------------------- #
 		Other.saveLog(phaseLog,"5", "Melting Phase Started", time.time() - t_start)
 		if(phaseChk <= 5):
+			print("Melting Program Start  {0}".format(time.time()))
 			IM920.Send("P5S")
 			print("Melting Phase Started")
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Start")
@@ -154,23 +157,24 @@ if __name__ == "__main__":
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Finished")
 			IM920.Send("P5F")
 
-		# -------------------  Running Fhase --- #
-		print("Running Program Start  {0}".format(time.time()))
+		# -------------------  Running Fhase ------------------ #
 		Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 		t1 = time.time()
 		t2 = t1
 		if(phaseChk <= 7):
+			print("Running Program Start  {0}".format(time.time()))
 			Motor.motor(30, -30, 1)
 			IM920.Send("P7S")
 			t1 = time.time()
 			t2 = t1
-			while(t2-t1 <= t_release):
+			while(t2-t1 <= t_running):
 				bme280Data = BME280.bme280_read()	#Read BME280 data
 				bmx055Data = BMX055.bmx055_read()	#Read BMX055 data
 				luxData = TSL2561.readLux()			#Read TSL2561 data
 				gpsData = GPS.readGPS()				#Read GPS data
-				Other.saveLog(sleepLog, time.time() - t_start, gpsData, bme280Data, bmx055Data, luxData)
+				Other.saveLog(runningLog, time.time() - t_start, gpsData, bme280Data, bmx055Data, luxData)
 				photoName = Capture.Capture(photoPath)
+				Other.saveLog(photoLog, time.time() - t_start, photoName)
 				IM920.Send("P7D")
 				time.sleep(1)
 				t2=time.time()
