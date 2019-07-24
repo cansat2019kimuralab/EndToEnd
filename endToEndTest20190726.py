@@ -19,6 +19,7 @@ import difflib
 import pigpio
 import serial
 import time
+import traceback
 
 import BMX055
 import BME280
@@ -47,13 +48,15 @@ y = 180			#time for land(loopy)
 gpsData=[0.0,0.0,0.0,0.0,0.0]                       #variable to store GPS data
 bme280Data=[0.0,0.0,0.0,0.0]                        #variable to store BME80 data
 bmx055data=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]    #variable to store BMX055 data
-lcount	#lux count for release
-acount=0	#press count for release
-Pcount=0	#press count for land
-GAcount=0	#GPSheight count for land
+
+# --- variable for Judgement --- #
+lcount = 0		#lux count for release
+acount=0		#press count for release
+Pcount=0		#press count for land
+GAcount=0		#GPSheight count for land
 luxjudge = 0	#for release
 pressjudge=0	#for release and land
-gpsjudge=0	#for land
+gpsjudge=0		#for land
 paraExsist = 0 	#variable for Para Detection    0:Not Exsist, 1:Exsist
 
 # --- variable of Log path --- #
@@ -67,12 +70,14 @@ runningLog = "/home/pi/log/runningLog.txt"
 goalDetectionLog = "/home/pi/log/goalDetectionLog.txt"
 errorLog = "/home/pi/log/erroLog.txt"
 
-pi=pigpio.pi()
+pi=pigpio.pi()	#object to set pigpio
+
 
 
 def setup():
 	global phaseChk
 
+	pi.set_mode(17,pigpio.OUTPUT)
 	pi.set_mode(22,pigpio.OUTPUT)
 	pi.write(22,1)	#IM920	Turn On
 	pi.write(17,0)	#outcasing
@@ -100,10 +105,12 @@ if __name__ == "__main__":
 		t_start = time.time()
 		#-----setup phase ---------#
 		setup()
-		IM920.Send("P1S")
 		print("Program Start  {0}".format(time.time()))
 		print(phaseChk)
-		IM920.Send("P1F")
+		if(phaseChk <= 1):
+			IM920.Send("P1S")
+			Other.saveLog(phaseLog, "1", "Program Started", time.time() - t_start)
+			IM920.Send("P1F")
 
 		# ------------------- Sleep Phase --------------------- #
 		Other.saveLog(phaseLog, "2", "Sleep Phase Started", time.time() - t_start)
@@ -181,7 +188,6 @@ if __name__ == "__main__":
 			else:
 				print("LAND TIMEOUT")
 			print("THE ROVER HAS LANDED")
-			pi.write(22,1)
 			IM920.Send("P4F")
 
 		# ------------------- Melting Phase ------------------- #
@@ -192,7 +198,8 @@ if __name__ == "__main__":
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Start")
 			Melting.Melting(t_melt)
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Finished")
-			IM920.Send
+			IM920.Send("P5F")
+
 		# ------------------- ParaAvoidance Phase ------------------- #
 		Other.saveLog(phaseLog, "6", "ParaAvoidance Phase Started", time.time() - t_start)
 		if(phaseChk <= 6):
@@ -225,7 +232,7 @@ if __name__ == "__main__":
 		close()
 		print("Keyboard Interrupt")
 	except:
-		IM920.Send("error")
+		IM920.Send("EO")
 		close()
 		print(traceback.format_exc())
 		Other.saveLog(errorLog, time.time() - t_start, "Error")
