@@ -49,7 +49,7 @@ runningLog = "runningLog.txt"
 photoLog = "photoLog.txt"
 errorLog = "errorLog.txt"
 
-photoPath = "/photo"
+photoPath = "photo/"
 
 pi = pigpio.pi()	#object to set pigpio
 
@@ -89,6 +89,7 @@ if __name__ == "__main__":
 			IM920.Send("P1F")
 
 		# ------------------- Sleep Phase --------------------- #
+		print("Sleep Phase Started  {0}".format(time.time()))		
 		Other.saveLog(phaseLog, "2", "Sleep Phase Started", time.time() - t_start)
 		if(phaseChk <= 2):
 			IM920.Send("P2S")
@@ -105,7 +106,7 @@ if __name__ == "__main__":
 				t2=time.time()
 
 		# ------------------- Release Fhase ------------------- #
-		Other.saveLog(phaseLog, "3", "Sleep Phase Started", time.time() - t_start)
+		Other.saveLog(phaseLog, "3", "Release Phase Started", time.time() - t_start)
 		print("Release Judgement Program Start  {0}".format(time.time()))
 		if(phaseChk <= 3):
 			t1 = time.time()
@@ -124,6 +125,7 @@ if __name__ == "__main__":
 			IM920.Send("P3F")
 
 		# ------------------- landing Fhase ------------------- #
+		print("Landing  Judgement Program Start  {0}".format(time.time()))
 		Other.saveLog(phaseLog, "4", "Landing Phase Started", time.time() - t_start)
 		if(phaseChk <= 4):
 			IM920.Send("P4S")
@@ -141,23 +143,25 @@ if __name__ == "__main__":
 				t2=time.time()
 			IM920.Send("P4F")
 
-		# ------------------- Melting Fhase ------------------- #
+		# - Melting-------------- Fhase ------------------- #
+		print("Melting Program Start  {0}".format(time.time()))
 		Other.saveLog(phaseLog,"5", "Melting Phase Started", time.time() - t_start)
 		if(phaseChk <= 5):
 			IM920.Send("P5S")
 			print("Melting Phase Started")
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Start")
-			Melting.Melting(t_melt)
+			Melting.Melting(t_melting)
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Finished")
 			IM920.Send("P5F")
 
-		# ------------------- Running Fhase ------------------- #
+		# -------------------  Running Fhase --- #
+		print("Running Program Start  {0}".format(time.time()))
 		Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 		t1 = time.time()
 		t2 = t1
 		if(phaseChk <= 7):
 			Motor.motor(30, -30, 1)
-			IM920("P7S")
+			IM920.Send("P7S")
 			t1 = time.time()
 			t2 = t1
 			while(t2-t1 <= t_release):
@@ -167,16 +171,17 @@ if __name__ == "__main__":
 				gpsData = GPS.readGPS()				#Read GPS data
 				Other.saveLog(sleepLog, time.time() - t_start, gpsData, bme280Data, bmx055Data, luxData)
 				photoName = Capture.Capture(photoPath)
-				IM920("P7D")
+				IM920.Send("P7D")
 				time.sleep(1)
 				t2=time.time()
-			IM920("P7F")
+			IM920.Send("P7F")
 			Motor.motor(0, 0, 1)
-	
+
 		# ------------------- Program Finish Fhase ------------------- #
 		Other.saveLog(phaseLog, "10", "Program Finished", time.time() - t_start)
 		print("Program finished  {0}".format(time.time()))
 		Motor.motor(0, 0, 1)
+		IM920.Send("P10F")
 		close()
 	except KeyboardInterrupt:
 		Motor.motor_stop()
