@@ -40,16 +40,16 @@ t1 = 0.0		#vairable to store phase start time
 t2 = 0.0		#vairable to store time
 
 # --- variable of Log path --- #
-phaseLog = "log/phaseLog.txt"
-sleepLog = "log/sleepLog.txt"
-releaseLog = "log/releaseLog.txt"
-landingLog = "log/landingLog.txt"
-meltingLog = "log/meltingLog.txt"
-runningLog = "log/runningLog.txt"
-photoLog = "log/photoLog.txt"
-errorLog = "log/errorLog.txt"
+phaseLog = "/home/pi/log/phaseLog.txt"
+sleepLog = "/home/pi/log/sleepLog.txt"
+releaseLog = "/home/pi/log/releaseLog.txt"
+landingLog = "/home/pi/log/landingLog.txt"
+meltingLog = "/home/pi/log/meltingLog.txt"
+runningLog = "/home/pi/log/runningLog.txt"
+photoLog = "/home/pi/log/photoLog.txt"
+errorLog = "/home/pi/log/errorLog.txt"
 
-photoPath = "photo/photo"
+photoPath = "/home/pi/photo/photo"
 
 pi = pigpio.pi()	#object to set pigpio
 
