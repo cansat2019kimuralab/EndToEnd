@@ -31,11 +31,11 @@ phaseChk = 0	#variable for phase Check
 
 # --- variable of time setting --- #
 t_start = 0		#start time
-t_sleep = 3		#sleep time
-t_release = 5	#release time
-t_landing = 5	#landing time
+t_sleep = 30	#sleep time
+t_release = 30	#release time
+t_landing = 90	#landing time
 t_melting = 5	#melting time
-t_running = 20	#running time
+t_running = 10	#running time
 t1 = 0.0		#vairable to store phase start time
 t2 = 0.0		#vairable to store time
 
@@ -146,12 +146,15 @@ if __name__ == "__main__":
 				t2=time.time()
 			IM920.Send("P4F")
 
+		time.sleep(30)
+
+
 		# ------------------ Melting Fhase ------------------- #
 		Other.saveLog(phaseLog,"5", "Melting Phase Started", time.time() - t_start)
 		if(phaseChk <= 5):
 			print("Melting Program Start  {0}".format(time.time()))
 			IM920.Send("P5S")
-			print("Melting Phase Started")
+			#print("Melting Phase Started")
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Start")
 			Melting.Melting(t_melting)
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Finished")
@@ -163,7 +166,7 @@ if __name__ == "__main__":
 		t2 = t1
 		if(phaseChk <= 7):
 			print("Running Program Start  {0}".format(time.time()))
-			Motor.motor(30, -30, 1)
+			Motor.motor(40, -40, 1)
 			IM920.Send("P7S")
 			t1 = time.time()
 			t2 = t1
