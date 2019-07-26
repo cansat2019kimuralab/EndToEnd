@@ -3,7 +3,9 @@ import sys
 sys.path.append('/home/pi/git/kimuralab/Detection/ParachuteDetection')
 sys.path.append('/home/pi/git/kimuralab/Detection/ReleaseAndLandingDetection')
 sys.path.append('/home/pi/git/kimuralab/Detection/ParachuteDetection')
+sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/Calibration')
 sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/ParaAvoidance')
+sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/Running')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BME280')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BMX055')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Camera')
@@ -24,6 +26,7 @@ import traceback
 import BMX055
 import BME280
 import Capture
+import Calibration
 import GPS
 import IM920
 import Land
@@ -33,6 +36,7 @@ import Other
 import ParaDetection
 import ParaAvoidance
 import Release
+import RunningGPS
 import TSL2561
 
 phaseChk = 0	#variable for phase Check
@@ -59,6 +63,19 @@ pressjudge=0	#for release and land
 gpsjudge=0		#for land
 paraExsist = 0 	#variable for Para Detection    0:Not Exsist, 1:Exsist
 
+fileCal = "" 						#file path for Calibration
+ellipseScale = [0.0, 0.0, 0.0, 0.0] #Convert coefficient Ellipse to Circle
+disGoal = 100.0						#Distance from Goal [m]
+angGoal = 0.0						#Angle toword Goal [deg]
+angOffset = -77.0					#Angle Offset towrd North [deg]
+gLat, gLon = 35.918181, 139.907992	#Coordinates of That time
+nLat, nLon = 0.0, 0.0		  		#Coordinates of That time
+nAng = 0.0							#Direction of That time [deg]
+relAng = [0.0, 0.0, 0.0]			#Relative Direction between Goal and Rober That time [deg]
+rAng = 0.0
+mP = 0								#Motor Power
+gpsInterval = 0						#GPS Log Interval Time
+
 # --- variable of Log path --- #
 phaseLog = "/home/pi/log/phaseLog.txt"
 sleepLog = "/home/pi/log/sleepLog.txt"
@@ -68,6 +85,8 @@ meltingLog = "/home/pi/log/meltingLog.txt"
 paraAvoidanceLog = "/home/pi/log/paraAvoidanceLog.txt"
 runningLog = "/home/pi/log/runningLog.txt"
 goalDetectionLog = "/home/pi/log/goalDetectionLog.txt"
+captureLog = "/home/pi/log/captureLog.txt"
+calibrationLog = "/home/pi/log/calibrationLog"
 errorLog = "/home/pi/log/erroLog.txt"
 
 pi=pigpio.pi()	#object to set pigpio
@@ -218,8 +237,47 @@ if __name__ == "__main__":
 		if(phaseChk <= 7):
 			print("Running Phase Started")
 			IM920.Send("P7S")
+			
+			fileCal = Other.fileName(calibrationLog, "txt")
+
+			Motor.motor(40, 0, 1)
+			Calibration.readCalData(fileCal)
+			Motor.motor(0, 0, 1)
+			ellipseScale = Calibration.Calibration(fileCal)
+			Other.saveLog(fileCal, ellipseScale)
+
+			gpsInterval = 0
+
+			#Get GPS data
+			#print("Getting GPS Data")
+			while(not RunningGPS.checkGPSstatus(gpsData)):
+				gpsData = GPS.readGPS()
+				time.sleep(1)
+
 			while(disGoal >= 5):
-				pass
+				if(RunningGPS.checkGPSstatus(gpsData)):
+					nLat = gpsData[1]
+					nLon = gpsData[2]
+
+				#Calculate angle
+				nAng = RunningGPS.calNAng(ellipseScale, angOffset)
+
+				#Calculate disGoal and relAng
+				relAng[2] = relAng[1]
+				relAng[1] = relAng[0]
+				disGoal, angGoal, relAng[0] = RunningGPS.calGoal(nLat, nLon, gLat, gLon, nAng)
+				rAng = np.median(relAng)
+
+				#Calculate Motor Power
+				mPL, mPR, mPS = RunningGPS.runMotorSpeed(rAng)
+
+				Motor.motor(mPL, mPR, 0.001, 1)
+
+				#Save Log
+				print(nLat, nLon, disGoal, angGoal, nAng, rAng, mPL, mPR, mPS)
+				Other.saveLog(runningLog, time.time() - t_start, BMX055.bmx055_read(), nLat, nLon, disGoal, angGoal, nAng, rAng, mPL, mPR, mPS)
+				gpsData = GPS.readGPS()
+				time.sleep(0.1)
 			print("Running Phase Finished")
 			IM920.Send("P7F")
 			
