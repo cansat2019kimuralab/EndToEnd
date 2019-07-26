@@ -2,8 +2,8 @@
 import sys
 sys.path.append('/home/pi/git/kimuralab/Detection/ParachuteDetection')
 sys.path.append('/home/pi/git/kimuralab/Detection/ReleaseAndLandingDetection')
-sys.path.append('/home/pi/git/kimuralab/Detection/ParachuteDetection')
 sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/Calibration')
+sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/Goal')
 sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/ParaAvoidance')
 sys.path.append('/home/pi/git/kimuralab/IntegratedProgram/Running')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/BME280')
@@ -18,6 +18,7 @@ sys.path.append('/home/pi/git/kimuralab/Other')
 
 import binascii
 import difflib
+import numpy as np
 import pigpio
 import serial
 import time
@@ -27,6 +28,7 @@ import BMX055
 import BME280
 import Capture
 import Calibration
+import Goal
 import GPS
 import IM920
 import Land
@@ -43,7 +45,7 @@ phaseChk = 0	#variable for phase Check
 
 # --- variable of time setting --- #
 t_start  = 0.0	#time when program started
-t_sleep = 30	#time for sleep phase
+t_sleep = 10	#time for sleep phase
 t_melt = 5		#time for melting
 x = 30			#time for release(loopx)
 y = 30			#time for land(loopy)
@@ -133,20 +135,19 @@ if __name__ == "__main__":
 			IM920.Send("P1F")
 
 		# ------------------- Sleep Phase --------------------- #
-		Other.saveLog(phaseLog, "2", "Sleep Phase Started", time.time() - t_start)
 		if(phaseChk <= 2):
+			Other.saveLog(phaseLog, "2", "Sleep Phase Started", time.time() - t_start)
 			IM920.Send("P2S")
 			pi.write(22, 0)		#IM920 Turn Off
 			t_wait_start = time.time()
 			while(time.time() - t_wait_start <= t_sleep):
 				Other.saveLog(sleepLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
-				
 				#print("Sleep")
 				time.sleep(1)
 
 		# ------------------- Release Phase ------------------- #
-		Other.saveLog(phaseLog, "3", "Release Phase Started", time.time() - t_start)
 		if(phaseChk <= 3):
+			Other.saveLog(phaseLog, "3", "Release Phase Started", time.time() - t_start)
 			tx1 = time.time()
 			tx2 = tx1
 			print("Releasing Judgement Program Start  {0}".format(time.time() - t_start))
@@ -177,8 +178,8 @@ if __name__ == "__main__":
 			IM920.Send("P3F")
 
 		# ------------------- Landing Phase ------------------- #
-		Other.saveLog(phaseLog, "4", "Landing Phase Started", time.time() - t_start)
 		if(phaseChk <= 4):
+			Other.saveLog(phaseLog, "4", "Landing Phase Started", time.time() - t_start)
 			IM920.Send("P4S")
 			print("Landing Judgement Program Start  {0}".format(time.time() - t_start))
 			ty1=time.time()
@@ -212,8 +213,8 @@ if __name__ == "__main__":
 			IM920.Send("P4F")
 
 		# ------------------- Melting Phase ------------------- #
-		Other.saveLog(phaseLog,"5", "Melting Phase Started", time.time() - t_start)
 		if(phaseChk <= 5):
+			Other.saveLog(phaseLog,"5", "Melting Phase Started", time.time() - t_start)
 			IM920.Send("P5S")
 			print("Melting Phase Started")
 			Other.saveLog(meltingLog, time.time() - t_start, GPS.readGPS(), "Melting Start")
@@ -222,28 +223,29 @@ if __name__ == "__main__":
 			IM920.Send("P5F")
 
 		# ------------------- ParaAvoidance Phase ------------------- #
-		Other.saveLog(phaseLog, "6", "ParaAvoidance Phase Started", time.time() - t_start)
 		if(phaseChk <= 6):
+			Other.saveLog(phaseLog, "6", "ParaAvoidance Phase Started", time.time() - t_start)
 			IM920.Send("P6S")
 			print("ParaAvoidance Phase Started")
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Start")
 			print("START: Judge covered by Parachute")
-			ParaAvoidance.ParaJudge()
+			paraExisis =  ParaAvoidance.ParaJudge(70)
 			print("START: Parachute avoidance")
-			paraExsist = ParaAvoidance.ParaAvoidance()
-			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraExsist)
+			paraExsist, photoName = ParaAvoidance.ParaAvoidance(photopath)
+			Other.saveLog(captureLog, time.time() - t_start, photoName)
+			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraExsist, photoName)
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Finished")
 			IM920.Send("P6F")
 
         # ------------------- Running Phase ------------------- #
-		Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 		if(phaseChk <= 7):
+			Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 			print("Running Phase Started")
 			IM920.Send("P7S")
-			
+
 			fileCal = Other.fileName(calibrationLog, "txt")
 
-			Motor.motor(40, 0, 1)
+			Motor.motor(40, 0, 2)
 			Calibration.readCalData(fileCal)
 			Motor.motor(0, 0, 1)
 			ellipseScale = Calibration.Calibration(fileCal)
@@ -283,22 +285,21 @@ if __name__ == "__main__":
 				time.sleep(0.1)
 			print("Running Phase Finished")
 			IM920.Send("P7F")
-			
 
         # ------------------- GoalDetection Phase ------------------- #
-		Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 		if(phaseChk <= 8):
+			Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 			print("Goal Detection Phase Started")
 			IM920.Send("P8S")
 			H_min = 200
 			H_max = 10
 			S_thd = 120
-			goal = Togoal(photopath, H_min, H_max, S_thd)
-			while goal != 0:
+			goal = Goal.Togoal(photopath, H_min, H_max, S_thd)
+			while goal[2] != 0:
 				gpsdata = GPS.readGPS()
-				goal = Togoal(photopath, H_min, H_max, S_thd)
+				goal = Goal.Togoal(photopath, H_min, H_max, S_thd)
 				print("goal is",goal)
-				Other.savelog(goalDetectionLog, time.time() - t_start, gpsData, goal, max_area, GAP)
+				Other.saveLog(goalDetectionLog, time.time() - t_start, gpsData, goal)
 				Other.saveLog(captureLog, time.time() - t_start, goal[3])
 			print("Goal Detection Phase Finished")
 			IM920.Send("P8F")
