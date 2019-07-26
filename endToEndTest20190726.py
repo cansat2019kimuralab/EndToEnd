@@ -229,6 +229,15 @@ if __name__ == "__main__":
 		if(phaseChk <= 8):
 			print("Goal Detection Phase Started")
 			IM920.Send("P8S")
+			H_min = 200
+			H_max = 10
+			S_thd = 120
+			goal = Togoal("photo/photo", H_min, H_max, S_thd)
+			while goal != 0:
+				gpsdata = GPS.readGPS()
+				goal = Togoal("photo/photo", H_min, H_max, S_thd)
+				print("goal is",goal)
+				Other.savelog(GoalLog, time.time(), gpsData[1], gpsData[2], goal, max_area, GAP)
 			print("Goal Detection Phase Finished")
 			IM920.Send("P8F")
 
