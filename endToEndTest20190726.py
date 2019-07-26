@@ -73,7 +73,6 @@ errorLog = "/home/pi/log/erroLog.txt"
 pi=pigpio.pi()	#object to set pigpio
 
 
-
 def setup():
 	global phaseChk
 
@@ -217,16 +216,25 @@ if __name__ == "__main__":
         # ------------------- Running Phase ------------------- #
 		Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 		if(phaseChk <= 7):
+			print("Running Phase Started")
 			IM920.Send("P7S")
+			while(disGoal >= 5):
+				pass
+			print("Running Phase Finished")
 			IM920.Send("P7F")
+			
 
         # ------------------- GoalDetection Phase ------------------- #
 		Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 		if(phaseChk <= 8):
+			print("Goal Detection Phase Started")
 			IM920.Send("P8S")
+			print("Goal Detection Phase Finished")
 			IM920.Send("P8F")
 
+		print("Program Finished")
 		IM920.Send("P10")
+		Other.saveLog(phaseLog, "10", "Program Finished", time.time() - t_start)
 		close()
 	except KeyboardInterrupt:
 		close()
