@@ -15,6 +15,7 @@ sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Melting')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Motor')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2561')
 sys.path.append('/home/pi/git/kimuralab/Other')
+sys.path.append('/home/pi/git/kimuralab/Detection/GoalDetection')
 
 import binascii
 import difflib
@@ -27,6 +28,7 @@ import BMX055
 import BME280
 import Capture
 import Calibration
+import goal_detection
 import GPS
 import IM920
 import Land
@@ -293,9 +295,9 @@ if __name__ == "__main__":
 			goal = Togoal("photo/photo", H_min, H_max, S_thd)
 			while goal != 0:
 				gpsdata = GPS.readGPS()
-				goal = Togoal("photo/photo", H_min, H_max, S_thd)
+				goal = goal_detection.Togoal("photo/photo", H_min, H_max, S_thd)
 				print("goal is",goal)
-				Other.savelog(GoalLog, time.time(), gpsData[1], gpsData[2], goal, max_area, GAP)
+				Other.savelog(goalDetectionLog, time.time(), gpsData[1], gpsData[2], goal, max_area, GAP)
 			print("Goal Detection Phase Finished")
 			IM920.Send("P8F")
 
