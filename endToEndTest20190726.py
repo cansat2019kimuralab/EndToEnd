@@ -15,7 +15,6 @@ sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Melting')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/Motor')
 sys.path.append('/home/pi/git/kimuralab/SensorModuleTest/TSL2561')
 sys.path.append('/home/pi/git/kimuralab/Other')
-sys.path.append('/home/pi/git/kimuralab/Detection/GoalDetection')
 
 import binascii
 import difflib
@@ -28,7 +27,6 @@ import BMX055
 import BME280
 import Capture
 import Calibration
-import goal_detection
 import GPS
 import IM920
 import Land
@@ -45,10 +43,10 @@ phaseChk = 0	#variable for phase Check
 
 # --- variable of time setting --- #
 t_start  = 0.0	#time when program started
-t_sleep = 60	#time for sleep phase
+t_sleep = 30	#time for sleep phase
 t_melt = 5		#time for melting
-x = 600			#time for release(loopx)
-y = 180			#time for land(loopy)
+x = 30			#time for release(loopx)
+y = 30			#time for land(loopy)
 
 # --- variable for storing sensor data --- #
 gpsData=[0.0,0.0,0.0,0.0,0.0]                       #variable to store GPS data
@@ -90,6 +88,8 @@ goalDetectionLog = "/home/pi/log/goalDetectionLog.txt"
 captureLog = "/home/pi/log/captureLog.txt"
 calibrationLog = "/home/pi/log/calibrationLog"
 errorLog = "/home/pi/log/erroLog.txt"
+
+photopath = "/home/pi/photo/photo"
 
 pi=pigpio.pi()	#object to set pigpio
 
@@ -140,7 +140,8 @@ if __name__ == "__main__":
 			t_wait_start = time.time()
 			while(time.time() - t_wait_start <= t_sleep):
 				Other.saveLog(sleepLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
-				print("Sleep")
+				
+				#print("Sleep")
 				time.sleep(1)
 
 		# ------------------- Release Phase ------------------- #
@@ -152,7 +153,7 @@ if __name__ == "__main__":
 			#loopx
 			bme280Data=BME280.bme280_read()
 			while (tx2-tx1<=x):
-				luxjudge,lcount = Release.luxjudge()
+				#luxjudge,lcount = Release.luxjudge()
 				pressjudge,acount = Release.pressjudge()
 
 				if luxjudge==1 or pressjudge==1:
@@ -160,11 +161,11 @@ if __name__ == "__main__":
 				else:
 					#pass
 		   			print("now in rocket ,taking photo")
-				Other.saveLog(releaseLog, time.time() - t_start, lcount, acount, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(releaseLog, time.time() - t_start, acount, GPS.readGPS(), TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
 				#Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(0.5)
 
-				Other.saveLog(releaseLog, time.time() - t_start, lcount, acount, TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(releaseLog, time.time() - t_start, acount, GPS.readGPS(), TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
 				#Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(0.5)
 				tx2=time.time()
@@ -188,21 +189,21 @@ if __name__ == "__main__":
 			while(ty2-ty1<=y):
 				IM920.Send("loopY")
 				pressjudge,Pcount=Land.pressjudge()
-			#	gpsjudge=Land.gpsjudge()
-				if pressjudge ==1 :#and gpsjudge ==1:
+				gpsjudge, gacount =Land.gpsjudge()
+				if pressjudge ==1 and gpsjudge ==1:
 					break
-				elif pressjudge==0 :#and gpsjudge==0:
+				elif pressjudge==0 and gpsjudge==0:
 				    print("Descend now taking photo")
-			#	elif pressjudge==1 or gpsjudge==1:
-			#	    print("landjudgementnow")
+				elif pressjudge==1 or gpsjudge==1:
+				    print("landjudgementnow")
 				gpsData = GPS.readGPS()
 				bme280Data=BME280.bme280_read()
 				bmx055data=BMX055.bmx055_read()
-				Other.saveLog(landingLog ,time.time() - t_start, Pcount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,time.time() - t_start, Pcount, gacount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
-				Other.saveLog(landingLog ,time.time() - t_start, Pcount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,time.time() - t_start, Pcount, gacount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
-				Other.saveLog(landingLog ,time.time() - t_start, Pcount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
+				Other.saveLog(landingLog ,time.time() - t_start, Pcount, gacount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
 				time.sleep(1)
 				ty2=time.time()
 			else:
@@ -292,12 +293,13 @@ if __name__ == "__main__":
 			H_min = 200
 			H_max = 10
 			S_thd = 120
-			goal = Togoal("photo/photo", H_min, H_max, S_thd)
+			goal = Togoal(photopath, H_min, H_max, S_thd)
 			while goal != 0:
 				gpsdata = GPS.readGPS()
-				goal = goal_detection.Togoal("photo/photo", H_min, H_max, S_thd)
+				goal = Togoal(photopath, H_min, H_max, S_thd)
 				print("goal is",goal)
-				Other.savelog(goalDetectionLog, time.time(), gpsData[1], gpsData[2], goal, max_area, GAP)
+				Other.savelog(goalDetectionLog, time.time() - t_start, gpsData, goal, max_area, GAP)
+				Other.saveLog(captureLog, time.time() - t_start, goal[3])
 			print("Goal Detection Phase Finished")
 			IM920.Send("P8F")
 
