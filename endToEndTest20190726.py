@@ -47,7 +47,7 @@ phaseChk = 0	#variable for phase Check
 t_start  = 0.0	#time when program started
 t_sleep = 10	#time for sleep phase
 t_melt = 5		#time for melting
-x = 30			#time for release(loopx)
+x = 10			#time for release(loopx)
 y = 30			#time for land(loopy)
 
 # --- variable for storing sensor data --- #
@@ -245,7 +245,7 @@ if __name__ == "__main__":
 
 			fileCal = Other.fileName(calibrationLog, "txt")
 
-			Motor.motor(40, 0, 2)
+			Motor.motor(50, 0, 2)
 			Calibration.readCalData(fileCal)
 			Motor.motor(0, 0, 1)
 			ellipseScale = Calibration.Calibration(fileCal)
