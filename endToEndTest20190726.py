@@ -276,13 +276,11 @@ if __name__ == "__main__":
 				#Calculate Motor Power
 				mPL, mPR, mPS = RunningGPS.runMotorSpeed(rAng)
 
-				Motor.motor(mPL, mPR, 0.001, 1)
-
 				#Save Log
 				print(nLat, nLon, disGoal, angGoal, nAng, rAng, mPL, mPR, mPS)
 				Other.saveLog(runningLog, time.time() - t_start, BMX055.bmx055_read(), nLat, nLon, disGoal, angGoal, nAng, rAng, mPL, mPR, mPS)
 				gpsData = GPS.readGPS()
-				time.sleep(0.1)
+				Motor.motor(mPL, mPR, 0.1, 1)
 			print("Running Phase Finished")
 			IM920.Send("P7F")
 
@@ -295,12 +293,12 @@ if __name__ == "__main__":
 			H_max = 10
 			S_thd = 120
 			goal = Goal.Togoal(photopath, H_min, H_max, S_thd)
-			while goal[2] != 0:
+			while goal[0] != 0:
 				gpsdata = GPS.readGPS()
 				goal = Goal.Togoal(photopath, H_min, H_max, S_thd)
 				print("goal is",goal)
 				Other.saveLog(goalDetectionLog, time.time() - t_start, gpsData, goal)
-				Other.saveLog(captureLog, time.time() - t_start, goal[3])
+				Other.saveLog(captureLog, time.time() - t_start, goal)
 			print("Goal Detection Phase Finished")
 			IM920.Send("P8F")
 
