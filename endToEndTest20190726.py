@@ -231,9 +231,10 @@ if __name__ == "__main__":
 			print("START: Judge covered by Parachute")
 			paraExisis =  ParaAvoidance.ParaJudge(70)
 			print("START: Parachute avoidance")
-			paraExsist, photoName = ParaAvoidance.ParaAvoidance(photopath)
-			Other.saveLog(captureLog, time.time() - t_start, photoName)
-			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraExsist, photoName)
+			for i in range(2):
+				paraExsist, photoName = ParaAvoidance.ParaAvoidance(photopath)
+				Other.saveLog(captureLog, time.time() - t_start, photoName)
+				Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraExsist, photoName)
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Finished")
 			IM920.Send("P6F")
 
@@ -245,7 +246,7 @@ if __name__ == "__main__":
 
 			fileCal = Other.fileName(calibrationLog, "txt")
 
-			Motor.motor(50, 0, 2)
+			Motor.motor(60, 0, 2)
 			Calibration.readCalData(fileCal)
 			Motor.motor(0, 0, 1)
 			ellipseScale = Calibration.Calibration(fileCal)
