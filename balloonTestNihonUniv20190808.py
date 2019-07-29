@@ -80,6 +80,8 @@ nAng = 0.0							#Direction of That time [deg]
 relAng = [0.0, 0.0, 0.0]			#Relative Direction between Goal and Rober That time [deg]
 rAng = 0.0							#Median of relAng [deg]
 mP, mPL, mPR, mPS = 0, 0, 0, 0		#Motor Power
+kp = 0.8							#P Gain
+maxMP = 60							#Maximum Motor Power
 gpsInterval = 0						#GPS Log Interval Time
 
 # --- variable of Log path --- #
@@ -111,11 +113,17 @@ def setup():
 	BME280.bme280_setup()
 	BME280.bme280_calib_param()
 	BMX055.bmx055_setup()
-	GPS.openGPS()
+
+	try:
+		GPS.openGPS()
+	except:
+		#if I/O Error Occured
+		GPS.closeGPS()
+		time.sleep(0.1)
+		GPS.openGPS()
 
 	with open(phaseLog, 'a') as f:
 		pass
-
 	phaseChk = int(Other.phaseCheck(phaseLog))
 
 def close():
@@ -255,8 +263,6 @@ if __name__ == "__main__":
 
 			gpsInterval = 0
 
-			#Get GPS data
-			#print("Getting GPS Data")
 			while(not RunningGPS.checkGPSstatus(gpsData)):
 				gpsData = GPS.readGPS()
 				time.sleep(1)
@@ -276,7 +282,7 @@ if __name__ == "__main__":
 				rAng = np.median(relAng)
 
 				#Calculate Motor Power
-				mPL, mPR, mPS = RunningGPS.runMotorSpeed(rAng)
+				mPL, mPR, mPS = RunningGPS.runMotorSpeed(rAng, kp, maxMP)
 
 				#Save Log
 				print(nLat, nLon, disGoal, angGoal, nAng, rAng, mPL, mPR, mPS)
