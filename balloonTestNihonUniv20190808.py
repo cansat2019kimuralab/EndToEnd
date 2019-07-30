@@ -280,8 +280,8 @@ if __name__ == "__main__":
 					nLon = gpsData[2]
 
 				# --- Calibration --- #
-				#Every 180 second,  Calibrate
-				if(time.time() - t_calib_origin < timeout_calibration):
+				#Every [timeout_calibratoin] second,  Calibrate
+				if(time.time() - t_calib_origin > timeout_calibration):
 					Motor.motor(0, 0, 2)
 					fileCal = Other.fileName(calibrationLog, "txt")
 					Motor.motor(60, 0, 2)
