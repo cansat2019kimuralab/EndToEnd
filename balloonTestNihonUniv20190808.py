@@ -44,14 +44,16 @@ import TSL2561
 phaseChk = 0	#variable for phase Check
 
 # --- variable of time setting --- #
-t_start  = 0.0	#time when program started
-t_sleep = 10	#time for sleep phase
-t_release = 10	#time for release(loopx)
-t_land = 30		#time for land(loopy)
-t_melt = 5		#time for melting
-t_sleep_start = 0
-t_release_start = 0
-t_land_start = 0
+t_start  = 0.0				#time when program started
+t_sleep = 10				#time for sleep phase
+t_release = 10				#time for release(loopx)
+t_land = 30					#time for land(loopy)
+t_melt = 5					#time for melting
+t_sleep_start = 0			#time for sleep origin
+t_release_start = 0			#time for release origin
+t_land_start = 0			#time for land origin
+t_calib_origin = 0			#time for calibration origin
+timeout_calibration = 180	#time for calibration timeout
 
 # --- variable for storing sensor data --- #
 gpsData=[0.0,0.0,0.0,0.0,0.0]                       #variable to store GPS data
@@ -82,7 +84,6 @@ rAng = 0.0							#Median of relAng [deg]
 mP, mPL, mPR, mPS = 0, 0, 0, 0		#Motor Power
 kp = 0.8							#P Gain
 maxMP = 60							#Maximum Motor Power
-gpsInterval = 0						#GPS Log Interval Time
 
 # --- variable of Log path --- #
 phaseLog =			"/home/pi/log/phaseLog.txt"
@@ -124,7 +125,13 @@ def setup():
 
 	with open(phaseLog, 'a') as f:
 		pass
+	
+	#if it is End to End Test, then
 	phaseChk = int(Other.phaseCheck(phaseLog))
+
+	#if it is debug
+	#phaseChk = 7
+
 
 def close():
 	GPS.closeGPS()
@@ -253,24 +260,36 @@ if __name__ == "__main__":
 			print("Running Phase Started")
 			IM920.Send("P7S")
 
+			# --- Calibration --- #
 			fileCal = Other.fileName(calibrationLog, "txt")
-
 			Motor.motor(60, 0, 2)
 			Calibration.readCalData(fileCal)
 			Motor.motor(0, 0, 1)
 			ellipseScale = Calibration.Calibration(fileCal)
 			Other.saveLog(fileCal, ellipseScale)
 
-			gpsInterval = 0
-
 			while(not RunningGPS.checkGPSstatus(gpsData)):
 				gpsData = GPS.readGPS()
 				time.sleep(1)
 
+			t_calib_origin = time.time()
 			while(disGoal >= 5):
+				# --- Get GPS Data --- #
 				if(RunningGPS.checkGPSstatus(gpsData)):
 					nLat = gpsData[1]
 					nLon = gpsData[2]
+
+				# --- Calibration --- #
+				#Every 180 second,  Calibrate
+				if(time.time() - t_calib_origin < timeout_calibration):
+					Motor.motor(0, 0, 2)
+					fileCal = Other.fileName(calibrationLog, "txt")
+					Motor.motor(60, 0, 2)
+					Calibration.readCalData(fileCal)
+					Motor.motor(0, 0, 1)
+					ellipseScale = Calibration.Calibration(fileCal)
+					Other.saveLog(fileCal, ellipseScale)
+					t_calib_origin = time.time()
 
 				#Calculate angle
 				nAng = RunningGPS.calNAng(ellipseScale, angOffset)
