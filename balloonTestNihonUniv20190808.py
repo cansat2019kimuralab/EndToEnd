@@ -254,7 +254,7 @@ if __name__ == "__main__":
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Finished")
 			IM920.Send("P6F")
 
-        # ------------------- Running Phase ------------------- #
+		# ------------------- Running Phase ------------------- #
 		if(phaseChk <= 7):
 			Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 			print("Running Phase Started")
@@ -312,7 +312,7 @@ if __name__ == "__main__":
 			print("Running Phase Finished")
 			IM920.Send("P7F")
 
-        # ------------------- GoalDetection Phase ------------------- #
+		# ------------------- GoalDetection Phase ------------------- #
 		if(phaseChk <= 8):
 			Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 			print("Goal Detection Phase Started")
@@ -335,6 +335,7 @@ if __name__ == "__main__":
 		Other.saveLog(phaseLog, "10", "Program Finished", time.time() - t_start)
 		close()
 	except KeyboardInterrupt:
+		IM920.Send("KI")
 		close()
 		print("Keyboard Interrupt")
 	except:
