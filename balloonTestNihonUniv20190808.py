@@ -53,7 +53,9 @@ t_sleep_start = 0			#time for sleep origin
 t_release_start = 0			#time for release origin
 t_land_start = 0			#time for land origin
 t_calib_origin = 0			#time for calibration origin
+t_paraDete_start = 0
 timeout_calibration = 180	#time for calibration timeout
+timeout_parachute = 60
 
 # --- variable for storing sensor data --- #
 gpsData=[0.0,0.0,0.0,0.0,0.0]                       #variable to store GPS data
@@ -125,12 +127,12 @@ def setup():
 
 	with open(phaseLog, 'a') as f:
 		pass
-	
+
 	#if it is End to End Test, then
 	phaseChk = int(Other.phaseCheck(phaseLog))
 
 	#if it is debug
-	#phaseChk = 7
+	phaseChk = 5
 
 
 def close():
@@ -245,30 +247,28 @@ if __name__ == "__main__":
 
 			print("ParaAvoidance Phase Started")
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Start")
-			
+
 			print("START: Judge covered by Parachute")
-			timeout_parachuteJudge = time.time()
-			timestart_parachuteJudge = timeout_parachute
-			while timeout_parachuteJudge - timestart_parachuteJudge < 60:
-				paraLuxflug, paraLux = ParaJudge(70)
+			t_paraDete_start = time.time()
+			while time.time() - t_paraDete_start < timeout_parachute:
+				paraLuxflug, paraLux = ParaDetection.ParaJudge(70)
 				if paraLuxflug == 1:
 					break
-				timeout_parachuteJudge = time.time()
 
 			print("START: Parachute avoidance")
 			for i in range(2):	#Avoid Parachute two times
 				Motor.motor(30, 30, 0.5)
 				Motor.motor(0, 0, 0.2)
-				paraExsist, paraArea, photoName = ParaDetection.ParaDetection(photopath)
+				paraExsist, paraArea, photoName = ParaDetection.ParaDetection(photopath, 200, 10, 120)
 
-				if flug == 1:
+				if paraExsist == 1:
 					Motor.motor(-60, -60, 5)
 					Motor.motor(0, 0, 2)
 
-				if flug == 0:
+				if paraExsist == 0:
 					Motor.motor(60, 60, 5)
 					Motor.motor(0 ,0, 2)
-				
+
 				Other.saveLog(captureLog, time.time() - t_start, photoName)
 				Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraLuxflug, paraLux, photoName, paraExsist, paraArea)
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Finished")
