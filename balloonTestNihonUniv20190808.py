@@ -242,15 +242,35 @@ if __name__ == "__main__":
 		if(phaseChk <= 6):
 			Other.saveLog(phaseLog, "6", "ParaAvoidance Phase Started", time.time() - t_start)
 			IM920.Send("P6S")
+
 			print("ParaAvoidance Phase Started")
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Start")
+			
 			print("START: Judge covered by Parachute")
-			paraExisis =  ParaAvoidance.ParaJudge(70)
+			timeout_parachuteJudge = time.time()
+			timestart_parachuteJudge = timeout_parachute
+			while timeout_parachuteJudge - timestart_parachuteJudge < 60:
+				paraLuxflug, paraLux = ParaJudge(70)
+				if paraLuxflug == 1:
+					break
+				timeout_parachuteJudge = time.time()
+
 			print("START: Parachute avoidance")
 			for i in range(2):	#Avoid Parachute two times
-				paraExsist, photoName = ParaAvoidance.ParaAvoidance(photopath)
+				Motor.motor(30, 30, 0.5)
+				Motor.motor(0, 0, 0.2)
+				paraExsist, paraArea, photoName = ParaDetection.ParaDetection(photopath)
+
+				if flug == 1:
+					Motor.motor(-60, -60, 5)
+					Motor.motor(0, 0, 2)
+
+				if flug == 0:
+					Motor.motor(60, 60, 5)
+					Motor.motor(0 ,0, 2)
+				
 				Other.saveLog(captureLog, time.time() - t_start, photoName)
-				Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraExsist, photoName)
+				Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraLuxflug, paraLux, photoName, paraExsist, paraArea)
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Finished")
 			IM920.Send("P6F")
 
