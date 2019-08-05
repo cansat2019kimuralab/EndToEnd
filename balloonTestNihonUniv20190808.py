@@ -116,7 +116,9 @@ def setup():
 	BME280.bme280_setup()
 	BME280.bme280_calib_param()
 	BMX055.bmx055_setup()
-
+	
+	GPS.openGPS()
+	'''
 	try:
 		GPS.openGPS()
 	except:
@@ -127,12 +129,12 @@ def setup():
 
 	with open(phaseLog, 'a') as f:
 		pass
-
+	'''
 	#if it is End to End Test, then
 	phaseChk = int(Other.phaseCheck(phaseLog))
 
 	#if it is debug
-	phaseChk = 5
+	phaseChk = 7
 
 
 def close():
@@ -194,7 +196,7 @@ if __name__ == "__main__":
 			else:
 				print("RELEASE TIMEOUT")
 			print("THE ROVER HAS RELEASED")
-			pi.write(22,1)
+			pi.write(22, 1)
 			time.sleep(2)
 			IM920.Send("P3F")
 
@@ -278,8 +280,10 @@ if __name__ == "__main__":
 		if(phaseChk <= 7):
 			Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 			print("Running Phase Started")
-			IM920.Send("P7S")
+			print(pi.read(22))
+			#IM920.Send("P7S")
 
+			print("a")
 			# --- Calibration --- #
 			fileCal = Other.fileName(calibrationLog, "txt")
 			Motor.motor(60, 0, 2)
@@ -330,7 +334,7 @@ if __name__ == "__main__":
 				Motor.motor(mPL, mPR, 0.1, 1)
 			Motor.motor(0, 0, 1)
 			print("Running Phase Finished")
-			IM920.Send("P7F")
+			#IM920.Send("P7F")
 
 		# ------------------- GoalDetection Phase ------------------- #
 		if(phaseChk <= 8):
@@ -355,13 +359,13 @@ if __name__ == "__main__":
 		Other.saveLog(phaseLog, "10", "Program Finished", time.time() - t_start)
 		close()
 	except KeyboardInterrupt:
-		IM920.Send("KI")
+		#IM920.Send("KI")
 		close()
 		print("Keyboard Interrupt")
 	except:
-		IM920.Send("EO")
 		close()
 		print(traceback.format_exc())
 		Other.saveLog(errorLog, time.time() - t_start, "Error")
 		Other.saveLog(errorLog, traceback.format_exc())
 		Other.saveLog(errorLog, "\n")
+		#IM920.Send("EO")
