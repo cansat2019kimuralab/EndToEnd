@@ -116,7 +116,6 @@ def setup():
 	BME280.bme280_setup()
 	BME280.bme280_calib_param()
 	BMX055.bmx055_setup()
-	
 	GPS.openGPS()
 	'''
 	try:
@@ -280,10 +279,8 @@ if __name__ == "__main__":
 		if(phaseChk <= 7):
 			Other.saveLog(phaseLog, "7", "Running Phase Started", time.time() - t_start)
 			print("Running Phase Started")
-			print(pi.read(22))
 			#IM920.Send("P7S")
 
-			print("a")
 			# --- Calibration --- #
 			fileCal = Other.fileName(calibrationLog, "txt")
 			Motor.motor(60, 0, 2)
@@ -307,6 +304,7 @@ if __name__ == "__main__":
 				#Every [timeout_calibratoin] second,  Calibrate
 				if(time.time() - t_calib_origin > timeout_calibration):
 					Motor.motor(0, 0, 2)
+					print("Calibration")
 					fileCal = Other.fileName(calibrationLog, "txt")
 					Motor.motor(60, 0, 2)
 					Calibration.readCalData(fileCal)
