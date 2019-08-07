@@ -124,7 +124,7 @@ def setup():
 	phaseChk = int(Other.phaseCheck(phaseLog))
 
 	#if it is debug
-	phaseChk = 7
+	#phaseChk = 7
 
 def close():
 	GPS.closeGPS()
