@@ -365,10 +365,7 @@ if __name__ == "__main__":
 		if(phaseChk <= 8):
 			Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 			print("Goal Detection Phase Started")
-			IM920.Send("P8S")
-			goalFlug, goalArea, goalGAP, photoName = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)
-			Other.saveLog(goalDetectionLog, time.time() - t_start, gpsData, goalFlug, goalArea, goalGAP, photoName)
-			Other.saveLog(captureLog, time.time() - t_start, photoName)	
+			IM920.Send("P8S")	
 			while goalFlug != 0:
 				gpsdata = GPS.readGPS()
 				goalFlug, goalArea, goalGAP, photoName = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)
