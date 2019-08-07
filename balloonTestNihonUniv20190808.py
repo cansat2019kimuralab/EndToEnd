@@ -129,7 +129,6 @@ def setup():
 
 	#if it is End to End Test, then
 	phaseChk = int(Other.phaseCheck(phaseLog))
-
 	#if it is debug
 	#phaseChk = 7
 
