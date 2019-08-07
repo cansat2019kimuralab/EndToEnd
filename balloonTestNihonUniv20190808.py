@@ -74,6 +74,8 @@ pressjudge = 0	#for release and land
 gpsjudge = 0	#for land
 paraExsist = 0 	#variable for Para Detection    0:Not Exsist, 1:Exsist
 goalFlug = -1	#variable for GoalDetection		-1:Not Detect, 0:Goal, 1:Detect
+goalArea = 0	#variable for goal area
+goalGAP = -1	#variable for goal gap
 H_min = 200		#Hue minimam
 H_max = 10		#Hue maximam
 S_thd = 120		#Saturation threshold
@@ -278,6 +280,8 @@ if __name__ == "__main__":
 				if paraExsist == 1:
 					Motor.motor(-60, -60, 5)
 					Motor.motor(0, 0, 2)
+					Motor.motor(40, 10, 0.5)
+					Motor.motor(0, 0, 2)
 
 				if paraExsist == 0:
 					Motor.motor(60, 60, 5)
@@ -362,7 +366,9 @@ if __name__ == "__main__":
 			Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 			print("Goal Detection Phase Started")
 			IM920.Send("P8S")
-			goal = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)	
+			goalFlug, goalArea, goalGAP, photoName = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)
+			Other.saveLog(goalDetectionLog, time.time() - t_start, gpsData, goalFlug, goalArea, goalGAP, photoName)
+			Other.saveLog(captureLog, time.time() - t_start, photoName)	
 			while goalFlug != 0:
 				gpsdata = GPS.readGPS()
 				goalFlug, goalArea, goalGAP, photoName = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)
