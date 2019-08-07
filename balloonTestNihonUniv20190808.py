@@ -84,7 +84,7 @@ ellipseScale = [0.0, 0.0, 0.0, 0.0] #Convert coefficient Ellipse to Circle
 disGoal = 100.0						#Distance from Goal [m]
 angGoal = 0.0						#Angle toword Goal [deg]
 angOffset = -77.0					#Angle Offset towrd North [deg]
-gLat, gLon = 35.918181, 139.907992	#Coordinates of That time
+gLat, gLon = 35.918187, 139.908123	#Coordinates of That time
 nLat, nLon = 0.0, 0.0		  		#Coordinates of That time
 nAng = 0.0							#Direction of That time [deg]
 relAng = [0.0, 0.0, 0.0]			#Relative Direction between Goal and Rober That time [deg]
@@ -94,7 +94,7 @@ kp = 0.8							#Proportional Gain
 maxMP = 60							#Maximum Motor Power
 mp_min = 10							#motor power for Low level
 mp_max = 30							#motor power fot High level
-mp_adj = -2							#adjust motor power
+mp_adj = 0							#adjust motor power
 
 # --- variable of Log path --- #
 phaseLog =			"/home/pi/log/phaseLog.txt"
@@ -126,6 +126,9 @@ def setup():
 	BME280.bme280_calib_param()
 	BMX055.bmx055_setup()
 	GPS.openGPS()
+
+	with open(phaseLog, 'a') as f:
+		pass
 
 	#if it is End to End Test, then
 	phaseChk = int(Other.phaseCheck(phaseLog))
@@ -163,7 +166,7 @@ if __name__ == "__main__":
 
 			# --- Sleep --- #
 			while(time.time() - t_sleep_start <= t_sleep):
-				photoName = Capture.Caputure(photopath)
+				photoName = Capture.Capture(photopath)
 				Other.saveLog(captureLog, time.time() - t_start, photoName)
 				Other.saveLog(sleepLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
 				time.sleep(1)
@@ -195,7 +198,7 @@ if __name__ == "__main__":
 				time.sleep(0.5)
 				
 				# --- Take Photo --- #
-				photoName = Capture.Caputure(photopath)
+				photoName = Capture.Capture(photopath)
 				Other.saveLog(captureLog, time.time() - t_start, photoName)
 			else:
 				Other.saveLog(releaseLog, time.time() - t_start, "Release Judged by Timeout")
@@ -214,7 +217,7 @@ if __name__ == "__main__":
 			# --- Landing Judgement, "while" is for timeout --- #
 			while(time.time() - t_land_start <= t_land):
 				pressjudge, Pcount = Land.pressjudge()
-				gpsjudge, gacount = Land.gpsjusdge()
+				gpsjudge, gacount = Land.gpsjudge()
 
 				if pressjudge == 1 and gpsjudge == 1:
 					Other.saveLog(releaseLog, time.time() - t_start, "Landing Judged by Sensor", pressjudge, gpsjudge)
@@ -234,7 +237,7 @@ if __name__ == "__main__":
 				time.sleep(1)
 
 				# --- Take Photo --- #
-				photoName = Capture.Caputure(photopath)
+				photoName = Capture.Capture(photopath)
 				Other.saveLog(captureLog, time.time() - t_start, photoName)
 			else:
 				Other.saveLog(landingLog, time.time() - t_start, "Landing Judged by Timeout")
@@ -327,7 +330,9 @@ if __name__ == "__main__":
 				# --- Taking Photo --- #
 				if(time.time() - t_takePhoto_start > timeout_takePhoto):
 					Motor.motor(0, 0, 1)
-					photoName = Capture.Caputure(photopath)
+					Motor.motor(30, 30, 0.5)
+					Motor.motor(0, 0, 0.5)
+					photoName = Capture.Capture(photopath)
 					Other.saveLog(captureLog, time.time() - t_start, photoName)
 					t_takePhoto_start = time.time()
 
@@ -361,7 +366,7 @@ if __name__ == "__main__":
 			while goalFlug != 0:
 				gpsdata = GPS.readGPS()
 				goalFlug, goalArea, goalGAP, photoName = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)
-				print("goal is",goal)
+				print("goal is",goalFlug)
 				Other.saveLog(goalDetectionLog, time.time() - t_start, gpsData, goalFlug, goalArea, goalGAP, photoName)
 				Other.saveLog(captureLog, time.time() - t_start, photoName)
 			print("Goal Detection Phase Finished")
