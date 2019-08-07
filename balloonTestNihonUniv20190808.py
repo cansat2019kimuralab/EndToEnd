@@ -94,7 +94,7 @@ kp = 0.8							#Proportional Gain
 maxMP = 60							#Maximum Motor Power
 mp_min = 10							#motor power for Low level
 mp_max = 30							#motor power fot High level
-mp_adj = 2							#adjust motor power
+mp_adj = -2							#adjust motor power
 
 # --- variable of Log path --- #
 phaseLog =			"/home/pi/log/phaseLog.txt"
@@ -358,7 +358,7 @@ if __name__ == "__main__":
 			print("Goal Detection Phase Started")
 			IM920.Send("P8S")
 			goal = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)	
-			while goal[0] != 0:
+			while goalFlug != 0:
 				gpsdata = GPS.readGPS()
 				goalFlug, goalArea, goalGAP, photoName = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)
 				print("goal is",goal)
