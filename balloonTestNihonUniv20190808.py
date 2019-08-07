@@ -278,6 +278,8 @@ if __name__ == "__main__":
 				if paraExsist == 1:
 					Motor.motor(-60, -60, 5)
 					Motor.motor(0, 0, 2)
+					Motor.motor(40, 10, 0.5)
+					Motor.motor(0, 0, 2)
 
 				if paraExsist == 0:
 					Motor.motor(60, 60, 5)
