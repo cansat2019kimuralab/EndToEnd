@@ -71,6 +71,10 @@ luxjudge = 0	#for release
 pressjudge=0	#for release and land
 gpsjudge=0		#for land
 paraExsist = 0 	#variable for Para Detection    0:Not Exsist, 1:Exsist
+goalFlug = -1	#variable for GoalDetection		-1:Not Detect, 0:Goal, 1:Detect
+H_min = 200		#Hue minimam
+H_max = 10		#Hue maximam
+S_thd = 120		#Saturation threshold
 
 # --- variable for Running --- #
 fileCal = "" 						#file path for Calibration
@@ -84,8 +88,11 @@ nAng = 0.0							#Direction of That time [deg]
 relAng = [0.0, 0.0, 0.0]			#Relative Direction between Goal and Rober That time [deg]
 rAng = 0.0							#Median of relAng [deg]
 mP, mPL, mPR, mPS = 0, 0, 0, 0		#Motor Power
-kp = 0.8							#P Gain
+kp = 0.8							#Proportional Gain
 maxMP = 60							#Maximum Motor Power
+mp_min = 10							#motor power for Low level
+mp_max = 30							#motor power fot High level
+mp_adj = 2							#adjust motor power
 
 # --- variable of Log path --- #
 phaseLog =			"/home/pi/log/phaseLog.txt"
@@ -339,16 +346,13 @@ if __name__ == "__main__":
 			Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 			print("Goal Detection Phase Started")
 			IM920.Send("P8S")
-			H_min = 200	#グローバル変数で宣言
-			H_max = 10	#グローバル変数で宣言
-			S_thd = 120 #グローバル変数で宣言
-			goal = Goal.Togoal(photopath, H_min, H_max, S_thd)	#グローバル変数で宣言
+			goal = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)	
 			while goal[0] != 0:
 				gpsdata = GPS.readGPS()
-				goal = Goal.Togoal(photopath, H_min, H_max, S_thd)
+				goalFlug, goalArea, goalGAP, photoName = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)
 				print("goal is",goal)
-				Other.saveLog(goalDetectionLog, time.time() - t_start, gpsData, goal)
-				Other.saveLog(captureLog, time.time() - t_start, goal)
+				Other.saveLog(goalDetectionLog, time.time() - t_start, gpsData, goalFlug, goalArea, goalGAP, photoName)
+				Other.saveLog(captureLog, time.time() - t_start, photoName)
 			print("Goal Detection Phase Finished")
 			IM920.Send("P8F")
 
