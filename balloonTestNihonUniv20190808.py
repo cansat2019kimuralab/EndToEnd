@@ -135,7 +135,7 @@ def setup():
 
 def close():
 	GPS.closeGPS()
-	pi.write(22, 1)
+	pi.write(22, 1)		#IM920 Turn On
 	pi.write(17,0)
 	Motor.motor(0, 0, 1)
 	Motor.motor_stop()
