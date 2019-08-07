@@ -120,7 +120,7 @@ def setup():
 	pi.set_mode(17,pigpio.OUTPUT)
 	pi.set_mode(22,pigpio.OUTPUT)
 	pi.write(22,1)					#IM920	Turn On
-	pi.write(17,0)					#Outcasing	Turn Off
+	pi.write(17,0)					#Outcasing Turn Off
 	time.sleep(1)
 	BME280.bme280_setup()
 	BME280.bme280_calib_param()
