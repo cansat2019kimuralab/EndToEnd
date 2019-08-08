@@ -45,9 +45,9 @@ phaseChk = 0	#variable for phase Check
 
 # --- variable of time setting --- #
 t_start  = 0.0				#time when program started
-t_sleep = 10				#time for sleep phase
-t_release = 10				#time for release(loopx)
-t_land = 30					#time for land(loopy)
+t_sleep = 60				#time for sleep phase
+t_release = 120				#time for release(loopx)
+t_land = 300					#time for land(loopy)
 t_melt = 5					#time for melting
 t_sleep_start = 0			#time for sleep origin
 t_release_start = 0			#time for release origin
@@ -68,12 +68,14 @@ bmx055data = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]	#variable to store BMX055 dat
 lcount = 0		#lux count for release
 acount = 0		#press count for release
 Pcount = 0		#press count for land
-GAcount = 0		#GPSheight count for land
+GAcount = 0
+gacount=0	#GPSheight count for land
 luxjudge = 0	#for release
 pressjudge = 0	#for release and land
 gpsjudge = 0	#for land
 paraExsist = 0 	#variable for Para Detection    0:Not Exsist, 1:Exsist
 goalFlug = -1	#variable for GoalDetection		-1:Not Detect, 0:Goal, 1:Detect
+goalBuf = -1
 goalArea = 0	#variable for goal area
 goalGAP = -1	#variable for goal gap
 H_min = 200		#Hue minimam
@@ -86,7 +88,7 @@ ellipseScale = [0.0, 0.0, 0.0, 0.0] #Convert coefficient Ellipse to Circle
 disGoal = 100.0						#Distance from Goal [m]
 angGoal = 0.0						#Angle toword Goal [deg]
 angOffset = -77.0					#Angle Offset towrd North [deg]
-gLat, gLon = 35.918187, 139.908123	#Coordinates of That time
+gLat, gLon = 35.742532, 140.011542	#Coordinates of That time
 nLat, nLon = 0.0, 0.0		  		#Coordinates of That time
 nAng = 0.0							#Direction of That time [deg]
 relAng = [0.0, 0.0, 0.0]			#Relative Direction between Goal and Rober That time [deg]
@@ -94,9 +96,9 @@ rAng = 0.0							#Median of relAng [deg]
 mP, mPL, mPR, mPS = 0, 0, 0, 0		#Motor Power
 kp = 0.8							#Proportional Gain
 maxMP = 60							#Maximum Motor Power
-mp_min = 10							#motor power for Low level
-mp_max = 30							#motor power fot High level
-mp_adj = 0							#adjust motor power
+mp_min = 20							#motor power for Low level
+mp_max = 50							#motor power fot High level
+mp_adj = 2							#adjust motor power
 
 # --- variable of Log path --- #
 phaseLog =			"/home/pi/log/phaseLog.txt"
@@ -135,7 +137,7 @@ def setup():
 	#if it is End to End Test, then
 	phaseChk = int(Other.phaseCheck(phaseLog))
 	#if it is debug
-	#phaseChk = 7
+	phaseChk = 8
 
 def close():
 	GPS.closeGPS()
@@ -163,7 +165,8 @@ if __name__ == "__main__":
 			Other.saveLog(phaseLog, "2", "Sleep Phase Started", time.time() - t_start)
 			print("Sleep Phase Started  {0}".format(time.time() - t_start))
 			IM920.Send("P2S")
-			pi.write(22, 0)		#IM920 Turn Off
+			pi.write(22, 1)
+					#IM920 Turn Off
 			t_sleep_start = time.time()
 
 			# --- Sleep --- #
@@ -172,16 +175,21 @@ if __name__ == "__main__":
 				Other.saveLog(captureLog, time.time() - t_start, photoName)
 				Other.saveLog(sleepLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), TSL2561.readLux(), BMX055.bmx055_read())
 				time.sleep(1)
+				IM920.Send("SLEEP")
 
 		# ------------------- Release Phase ------------------- #
 		if(phaseChk <= 3):
 			Other.saveLog(phaseLog, "3", "Release Phase Started", time.time() - t_start)
 			t_release_start = time.time()
 			print("Releasing Phase Started  {0}".format(time.time() - t_start))
-
+			pi.write(22, 1)
+		#	time.sleep(2)
+#			IM920.Send("RELEASEJ")
 			# --- Release Judgement, "while" is for timeout --- #
 			while (time.time() - t_release_start <= t_release):
-				#luxjudge,lcount = Release.luxjudge()
+				#luxjudge,lcount = Release.luxjudge(
+				
+			#	IM920.Send("RELEASE J")
 				pressjudge,acount = Release.pressjudge()
 
 				if luxjudge == 1 or pressjudge == 1:
@@ -189,8 +197,8 @@ if __name__ == "__main__":
 					print("Rover has released")
 					break
 				else:
-		   			print("Rover is in rocket")
-
+					print("Rover is in rocket")
+					IM920.Send("INROCKET")
 				# --- Save Log --- #
 				Other.saveLog(releaseLog, time.time() - t_start, acount, GPS.readGPS(), TSL2561.readLux(), BME280.bme280_read(), BMX055.bmx055_read())
 				#Other.saveLog(releaseLog, time.time() - t_start, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
@@ -219,16 +227,16 @@ if __name__ == "__main__":
 			# --- Landing Judgement, "while" is for timeout --- #
 			while(time.time() - t_land_start <= t_land):
 				pressjudge, Pcount = Land.pressjudge()
-				gpsjudge, gacount = Land.gpsjudge()
+			#	gpsjudge, gacount = Land.gpsjudge()
 
-				if pressjudge == 1 and gpsjudge == 1:
-					Other.saveLog(releaseLog, time.time() - t_start, "Landing Judged by Sensor", pressjudge, gpsjudge)
+				if pressjudge == 1: #and gpsjudge == 1:
+					Other.saveLog(landingLog, time.time() - t_start, "Land Judged by Sensor", pressjudge, gpsjudge)
 					print("Rover has Landed")
 					break
-				elif pressjudge == 0 and gpsjudge == 0:
+				elif pressjudge == 0: #and gpsjudge == 0:
 				    print("Descend now taking photo")
-				elif pressjudge == 1 or gpsjudge == 1:
-				    print("Landing Judgement Now")
+			#	elif pressjudge == 1 : #or gpsjudge == 1:
+			#	    print("Landing JudgemenNow")
 				
 				# --- Save Log --- #
 				Other.saveLog(landingLog ,time.time() - t_start, Pcount, gacount, GPS.readGPS(), BME280.bme280_read(), BMX055.bmx055_read())
@@ -268,6 +276,7 @@ if __name__ == "__main__":
 			t_paraDete_start = time.time()
 			while time.time() - t_paraDete_start < timeout_parachute:
 				paraLuxflug, paraLux = ParaDetection.ParaJudge(70)
+				Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraLuxflug, paraLux)
 				if paraLuxflug == 1:
 					break
 
@@ -288,7 +297,7 @@ if __name__ == "__main__":
 					Motor.motor(0 ,0, 2)
 
 				Other.saveLog(captureLog, time.time() - t_start, photoName)
-				Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), paraLuxflug, paraLux, photoName, paraExsist, paraArea)
+				Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), photoName, paraExsist, paraArea)
 			Other.saveLog(paraAvoidanceLog, time.time() - t_start, GPS.readGPS(), "ParaAvoidance Finished")
 			IM920.Send("P6F")
 
@@ -366,9 +375,10 @@ if __name__ == "__main__":
 			Other.saveLog(phaseLog, "8", "GoalDetection Phase Started", time.time() - t_start)
 			print("Goal Detection Phase Started")
 			IM920.Send("P8S")	
-			while goalFlug != 0:
+			while goalFlug != 0 or goalBuf != 0:
 				gpsdata = GPS.readGPS()
 				goalFlug, goalArea, goalGAP, photoName = Goal.Togoal(photopath, H_min, H_max, S_thd, mp_min, mp_max, mp_adj)
+				goalBuf = goalFlug
 				print("goal is",goalFlug)
 				Other.saveLog(goalDetectionLog, time.time() - t_start, gpsData, goalFlug, goalArea, goalGAP, photoName)
 				Other.saveLog(captureLog, time.time() - t_start, photoName)
